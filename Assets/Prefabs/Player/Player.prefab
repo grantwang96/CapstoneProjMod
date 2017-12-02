@@ -211,7 +211,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1663884456030192}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0.8}
+  m_LocalPosition: {x: 0, y: 0.6, z: 0.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4100886270380074}
@@ -586,6 +586,7 @@ MonoBehaviour:
   attackTarget: {fileID: 0}
   drunkMod: 1
   slownessSeverity: 1
+  linearDrag: 2
   jumpForce: 8
   falling: 0
   yMove: 0
@@ -638,16 +639,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4478882645ac2e47a48d8c643fe67ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  max_health: 0
+  max_health: 100
   transmutable: 1
   hurt: 0
-  hurtTime: 0
+  hurtTime: 0.1
   dead: 0
   rbody: {fileID: 0}
+  charCon: {fileID: 0}
   myRend: {fileID: 0}
   myMovement: {fileID: 0}
   parentHit: {fileID: 0}
-  playerCanvas: {fileID: 0}
+  playerCanvas: {fileID: 224246466891886902}
   playerCanvasPrefab: {fileID: 224600092747835466, guid: d5e8c848985ae7241ab95d7230389ae1,
     type: 2}
   HeadMove: {fileID: 0}
@@ -691,7 +693,7 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 2
   m_Height: 2
-  m_Radius: 0.5
+  m_Radius: 0.4
   m_SlopeLimit: 50
   m_StepOffset: 0.3
   m_SkinWidth: 0.08

@@ -37,6 +37,7 @@ public class Missile : MonoBehaviour {
     }
 
     void OnCollisionEnter(Collision coll) {
+        Debug.Log(originator.name + " hit " + coll.collider.transform.name);
         if (primaryEffect) { // if primaryEffect is not null
             primaryEffect.OnHit(this, coll.collider);
         }

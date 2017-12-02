@@ -40,12 +40,13 @@ public class HailSideEffect : SpellSecondary {
 
             Vector3 location = user.position + Vector3.up * heightOffset; // Get current height offset
             Missile newProj = Instantiate(projectile, location + Random.insideUnitSphere * maxRadius, Quaternion.Euler(90, 0, 0)); // create new missile
+            newProj.originator = projectile.originator;
 
             Rigidbody rbody = newProj.GetComponent<Rigidbody>(); // Get projectile rigidbody
             rbody.useGravity = true; // allow gravity
             newProj.GetComponent<Collider>().enabled = true;
             newProj.Activate();
-            newProj.originator = null;
+            // newProj.originator = null;
         }
     }
 }

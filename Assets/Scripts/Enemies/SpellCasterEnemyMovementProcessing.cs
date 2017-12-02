@@ -97,7 +97,9 @@ public class SpellCasterEnemyWander : NPCState
         cliffCheck();
         myOwner.transform.eulerAngles = Vector3.Slerp(myOwner.transform.eulerAngles, targRotation, Time.deltaTime * turnDurationTime);
         Vector3 forward = myOwner.transform.TransformDirection(Vector3.forward);
-        if (!emergencyTurning) { myOwner.rbody.MovePosition(myOwner.transform.position + forward * myOwner.currSpeed * Time.deltaTime); }
+        if (!emergencyTurning) { /*myOwner.rbody.MovePosition(myOwner.transform.position + forward * myOwner.currSpeed * Time.deltaTime);*/
+            myOwner.Move(forward * myOwner.currSpeed * Time.deltaTime);
+        }
         if (Time.time - startWander >= wanderTime) { myOwner.changeState(new SpellCasterEnemyIdle()); }
         if (myOwner.checkView())
         {
@@ -211,14 +213,15 @@ public class SpellCasterEnemyAggro : NPCState
             lostSightTime = 0f;
             Vector3 facingDir = attackTarget.position - myOwner.transform.position;
             facingDir.y = 0;
-            myOwner.transform.forward = facingDir;
+            Quaternion facing = Quaternion.LookRotation(facingDir);
+            myOwner.transform.rotation = Quaternion.Lerp(myOwner.transform.rotation, facing, 5f * Time.deltaTime);
         }
         else if(lostSightTime < lostSightLimit) {
             Vector3 facingDir = lastKnownLocation - myOwner.transform.position;
             facingDir.y = 0;
             myOwner.transform.forward = facingDir;
             lostSightTime += Time.deltaTime;
-            Debug.Log("Lost Sight Time: " + lostSightTime);
+            // Debug.Log("Lost Sight Time: " + lostSightTime);
             if(lostSightTime >= lostSightLimit) {
                 if(combatMove != null) {
                     myOwner.StopCoroutine(combatMove);
@@ -258,14 +261,15 @@ public class SpellCasterEnemyAggro : NPCState
         while (true)
         {
             if (moving) {
-                myOwner.rbody.MovePosition(myOwner.transform.position + myOwner.transform.right * right * myOwner.currSpeed * Time.deltaTime);
+                // myOwner.rbody.MovePosition(myOwner.transform.position + myOwner.transform.right * right * myOwner.currSpeed * Time.deltaTime);
+                myOwner.Move(myOwner.transform.right * right * myOwner.currSpeed * Time.deltaTime);
                 Vector3 groundCheck = (myOwner.transform.right * right) - myOwner.transform.up;
                 int clear = checkGround(groundCheck);
 
                 if(clear == 0) { right *= -1; Debug.Log("Herp"); }
                 else if(clear == 2) {
-                    myOwner.rbody.MovePosition(myOwner.transform.position
-                        - myOwner.transform.transform.forward * myOwner.currSpeed * Time.deltaTime);
+                    // myOwner.rbody.MovePosition(myOwner.transform.position - myOwner.transform.transform.forward * myOwner.currSpeed * Time.deltaTime);
+                    myOwner.Move(myOwner.transform.transform.forward * myOwner.currSpeed * Time.deltaTime);
                 }
                 if(Time.time - startTime >= waitTime) {
                     moving = false;
@@ -314,7 +318,8 @@ public class SpellCasterEnemyAggro : NPCState
         Quaternion lookDir = Quaternion.LookRotation(dir);
         myOwner.transform.rotation = Quaternion.Lerp(myOwner.transform.rotation, lookDir, Time.deltaTime * 4f);
         myOwner.Head.forward = myOwner.transform.forward;
-        myOwner.rbody.MovePosition(myOwner.transform.position + myOwner.transform.forward * myOwner.currSpeed * Time.deltaTime);
+        // myOwner.rbody.MovePosition(myOwner.transform.position + myOwner.transform.forward * myOwner.currSpeed * Time.deltaTime);
+        myOwner.Move(myOwner.transform.forward * myOwner.currSpeed * Time.deltaTime);
         if (Vector3.Distance(myOwner.transform.position, lastKnownLocation) < 0.4f) // If player is not seen, enter idling stage
         {
             Debug.Log("Guess I couldn't find you.");

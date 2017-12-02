@@ -42,6 +42,7 @@ public class NPCDamageable : Damageable {
 
     public override IEnumerator processTransmutation(float duration, GameObject replacement)
     {
+        myMovement.hamper++;
         // Turn off transmutable
         transmutable = false;
 
@@ -50,7 +51,7 @@ public class NPCDamageable : Damageable {
         myColl.enabled = false;
 
         // Freeze Rigidbody
-        rbody.constraints = RigidbodyConstraints.FreezeAll;
+        // rbody.constraints = RigidbodyConstraints.FreezeAll;
 
         foreach(MeshRenderer rend in renderers) // Turn off all mesh renderers
         {
@@ -63,15 +64,17 @@ public class NPCDamageable : Damageable {
         newDam.parentHit = this; // redirect damage to enemy
         // Attach some sparkly effect to indicate it is transmuted
 
+        transform.position = Vector3.up * 10000;
+            
         yield return new WaitForSeconds(duration); // Wait for this timeframe
 
         transform.position = newBody.transform.position; // move original body to newbody's position
         Destroy(newBody); // Get rid of old body
 
         foreach(MeshRenderer rend in renderers) { rend.enabled = true; } // re-enable mesh renderers
-        rbody.constraints = RigidbodyConstraints.FreezeRotation; // re-enable movement
+        // rbody.constraints = RigidbodyConstraints.FreezeRotation; // re-enable movement
         myColl.enabled = true; // re-enable collisions
-
+        myMovement.hamper--;
         setTransmutable(true);
     } // Transmutation Co-routine
 
@@ -95,7 +98,7 @@ public class NPCDamageable : Damageable {
 
     public override void Die()
     {
-        ScoreKeeper.Instance.incrementScore();
+        // ScoreKeeper.Instance.incrementScore();
         base.Die();
     }
 }

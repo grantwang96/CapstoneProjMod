@@ -26,14 +26,14 @@ public class PlayerDamageable : Damageable {
 	// Use this for initialization
 	public override void Start () {
         base.Start();
-        playerCanvas = Instantiate(playerCanvasPrefab);
+        // playerCanvas = Instantiate(playerCanvasPrefab);
         healthBar = playerCanvas.Find("HealthBar").GetComponent<Image>();
 	}
 	
 	// Update is called once per frame
 	public override void Update () {
         // update healthbar
-        healthBar.fillAmount = (float)getHealth() / max_health;
+        healthBar.fillAmount = (float)health / max_health;
 	}
 
     public override void TakeDamage(Transform attacker, int hpLost, Vector3 dir, float force)
@@ -41,7 +41,7 @@ public class PlayerDamageable : Damageable {
         if (hurt) { return; }
         // Visual hurt effects
         base.TakeDamage(attacker, hpLost, dir, force);
-        Debug.Log("Player HP: " + getHealth());
+        Debug.Log("Player HP: " + health);
         StartCoroutine(hurtFrames());
     }
 

@@ -7,15 +7,26 @@ public class EnemySpellCasterMovement : Movement, SpellCaster
     #region Public Variables
     SpellBook heldSpell;
 
+    public float pickupSpeed;
+
     [SerializeField] Transform gun;
     [SerializeField] Transform body;
+
+    public CharacterController charCon;
+
+    float yMove = Physics.gravity.y;
+    bool falling = true;
+
     #endregion
 
     #region Movement Implementations
 
     public override void Start()
     {
-        base.Start();
+        hamper = 0;
+        charCon = GetComponent<CharacterController>();
+        blueprint.setup(this);
+        currSpeed = baseSpeed;
     }
 
     public override void Update()
@@ -23,17 +34,76 @@ public class EnemySpellCasterMovement : Movement, SpellCaster
         base.Update();
     }
 
+    void FixedUpdate()
+    {
+        if (falling) {
+            yMove -= Time.deltaTime;
+        }
+        Move(Vector3.up * Physics.gravity.y * Time.deltaTime);
+    }
+
+    public override void Move(Vector3 movement)
+    {
+        if (!charCon.enabled) { return; }
+        charCon.Move(movement);
+    }
+
+    public override void knockBack(Vector3 dir, float force)
+    {
+        StartCoroutine(processKnockBack(dir, force));
+    }
+
+    IEnumerator processKnockBack(Vector3 dir, float force)
+    {
+        hamper++;
+        yMove = dir.y;
+        charCon.Move(dir * Time.deltaTime);
+        falling = true;
+        Vector3 flatForce = dir;
+        flatForce.y = 0;
+        while (!charCon.isGrounded)
+        {
+            charCon.Move(flatForce * Time.deltaTime);
+            charCon.Move(Vector3.up * yMove * Time.deltaTime);
+            yield return new WaitForEndOfFrame();
+        }
+        Vector3 start = flatForce;
+        float prog = 0f;
+        while (flatForce != Vector3.zero)
+        {
+            charCon.Move(flatForce * Time.deltaTime);
+            prog += Time.deltaTime;
+            flatForce = Vector3.Lerp(start, Vector3.zero, prog);
+            yield return new WaitForEndOfFrame();
+        }
+        hamper--;
+    }
+
+    void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if(Vector3.Distance(hit.point, transform.position + Vector3.up * charCon.height / 2) < 0.1f) {
+            yMove = 0f;
+            return;
+        }
+        if (charCon.isGrounded) {
+            falling = false;
+            yMove = Physics.gravity.y;
+            return;
+        }
+    }
+
     public override IEnumerator attack(Vector3 target)
     {
         hamper++;
         anim.Play("Attack");
         bool fired = false;
+        if (heldSpell != null) { heldSpell.primaryEffect.ActivateSpell(this, heldSpell.secondaryEffect); }
         while (anim.GetCurrentAnimatorStateInfo(0).IsName("Attack"))
         {
             if(anim.GetCurrentAnimatorStateInfo(0).length >= 0.5f && !fired) {
-                // Debug.Log("Pew");
+                Debug.Log("Pew");
                 fired = true;
-                // heldSpell.primaryCast();
+                // if (heldSpell != null) { heldSpell.primaryEffect.ActivateSpell(this, heldSpell.secondaryEffect); }
             }
             yield return new WaitForEndOfFrame();
         }
@@ -45,7 +115,20 @@ public class EnemySpellCasterMovement : Movement, SpellCaster
     #region SpellCaster Implementations
     public void pickUpSpell(SpellBook newSpell)
     {
-        
+        if(heldSpell != null) { dropSpell(heldSpell, newSpell.transform.position); }
+        heldSpell = newSpell;
+        heldSpell.Deactivate();
+        StartCoroutine(pullSpell(newSpell.transform));
+    }
+
+    IEnumerator pullSpell(Transform spellTrans)
+    {
+        spellTrans.parent = transform;
+        while(Vector3.Distance(spellTrans.position, transform.position) > 0.2f) {
+            spellTrans.position = Vector3.Lerp(spellTrans.position, transform.position, Time.deltaTime * pickupSpeed);
+            yield return new WaitForEndOfFrame();
+        }
+        spellTrans.localPosition = Vector3.zero;
     }
 
     public void addToSeductionList(Damageable loser)

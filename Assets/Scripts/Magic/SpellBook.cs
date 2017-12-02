@@ -15,7 +15,7 @@ public class SpellBook : MonoBehaviour, Interactable {
     Rigidbody rbody;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
         allMeshes = GetComponentsInChildren<MeshRenderer>();
         rbody = GetComponent<Rigidbody>();
 	}

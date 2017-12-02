@@ -19,8 +19,23 @@ public class SpellPrimary : ScriptableObject {
         Transform firingPoint = user.returnGun();
         if (firingPoint)
         {
+            // Make sure we dont fire inside the user
+            Vector3 firePoint = firingPoint.position;
+            /*
+            Collider[] colls = Physics.OverlapSphere(firePoint, projectilePrefab.GetComponent<SphereCollider>().radius);
+            if (colls.Length != 0) {
+                for(int i = 0; i < colls.Length; i++) {
+                    if(colls[i].transform == user.returnBody()) {
+                        firePoint += user.returnBody().forward;
+                        Debug.Log("Firepoint: " + firePoint + " is within body!");
+                        break;
+                    }
+                }
+            }
+            */
+
             // Create a new missile object
-            Missile newProjectile = Instantiate(projectilePrefab, firingPoint.position, user.returnHead().rotation);
+            Missile newProjectile = Instantiate(projectilePrefab, firePoint, user.returnHead().rotation);
             newProjectile.bounceCount = 0;
             newProjectile.primaryEffect = this;
             newProjectile.secondaryEffect = secondaryEffect;

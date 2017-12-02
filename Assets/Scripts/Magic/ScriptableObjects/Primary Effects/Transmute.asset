@@ -15,7 +15,7 @@ MonoBehaviour:
   power: 1
   powerLevelModifier: 1
   powerLevel: 1
-  baseColor: {r: 1, g: 0, b: 0, a: 1}
+  baseColor: {r: 1, g: 0, b: 0, a: 0.7058824}
   projectilePrefab: {fileID: 114765780417504250, guid: 88670340bf7213645838c2e6f7ce896e,
     type: 2}
   duration: 15

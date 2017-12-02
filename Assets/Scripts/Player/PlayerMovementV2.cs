@@ -6,6 +6,7 @@ public class PlayerMovementV2 : Movement {
 
     public int drunkMod;
     public float slownessSeverity;
+    public float linearDrag;
 
     public float jumpForce;
     Vector3 moveDir;
@@ -99,12 +100,11 @@ public class PlayerMovementV2 : Movement {
         }
         Vector3 start = flatForce;
         float prog = 0f;
-        Debug.Log(flatForce);
         while (flatForce != Vector3.zero)
         {
             charCon.Move(flatForce * Time.deltaTime);
             prog += Time.deltaTime;
-            flatForce = Vector3.Lerp(start, Vector3.zero, prog);
+            flatForce = Vector3.Lerp(start, Vector3.zero, prog * linearDrag);
             yield return new WaitForEndOfFrame();
         }
         hamper--;

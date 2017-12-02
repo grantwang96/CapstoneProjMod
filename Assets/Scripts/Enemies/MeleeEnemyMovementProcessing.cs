@@ -44,8 +44,7 @@ public class NPCIdle : NPCState
         // Do some head turning
         base.Execute();
 
-        if (Time.time - startIdle >= idleTime)
-        {
+        if (Time.time - startIdle >= idleTime) {
             myOwner.changeState(new NPCWander());
         }
     }
@@ -138,13 +137,17 @@ public class NPCWander : NPCState
         cliffCheck();
         myOwner.transform.eulerAngles = Vector3.Slerp(myOwner.transform.eulerAngles, targRotation, Time.deltaTime * turnDurationTime);
         Vector3 forward = myOwner.transform.TransformDirection(Vector3.forward);
-        if (!emergencyTurning) { myOwner.rbody.MovePosition(myOwner.transform.position + forward * myOwner.currSpeed * Time.deltaTime); }
+        if (!emergencyTurning) {
+            /*myOwner.rbody.MovePosition(myOwner.transform.position + forward * myOwner.currSpeed * Time.deltaTime);*/
+            myOwner.Move(forward * myOwner.currSpeed * Time.deltaTime);
+        }
+
         if(Time.time - startWander >= wanderTime) { myOwner.changeState(new NPCIdle()); }
         if (myOwner.checkView())
         {
             // change state to aggro
             becomeAggro(myOwner.myType);
-            Debug.Log("I can see you!");
+            // Debug.Log("I can see you!");
             return;
         }
     }
@@ -250,12 +253,10 @@ public class MeleeEnemyChase : NPCState
 
     public override void Execute()
     {
-        if (clearShot())
-        {
+        if (clearShot()) {
             chaseTarget();
         }
-        else
-        {
+        else {
             goToLastLocation();
         }
     }
@@ -264,8 +265,7 @@ public class MeleeEnemyChase : NPCState
     {
         if(attackTarget == null) { return false; }
         RaycastHit rayHit;
-        if (Physics.Raycast(myOwner.transform.position, attackTarget.position - myOwner.transform.position, out rayHit, myOwner.sightRange))
-        {
+        if (Physics.Raycast(myOwner.transform.position, attackTarget.position - myOwner.transform.position, out rayHit, myOwner.sightRange)) {
             if(rayHit.transform == attackTarget) { return true; }
         }
         return false;
@@ -276,12 +276,16 @@ public class MeleeEnemyChase : NPCState
         Vector3 myOwnerPos = new Vector3(myOwner.transform.position.x, 0, myOwner.transform.position.z);
         Vector3 targetPos = new Vector3(myOwner.attackTarget.position.x, 0, myOwner.attackTarget.position.z);
         lastKnownLocation = attackTarget.position;
+
         Vector3 dir = (targetPos - myOwnerPos).normalized;
         Quaternion lookDir = Quaternion.LookRotation(dir);
         // myOwner.transform.forward = dir;
         myOwner.transform.rotation = Quaternion.Lerp(myOwner.transform.rotation, lookDir, Time.deltaTime * 6f);
         myOwner.Head.forward = myOwner.transform.forward;
-        myOwner.rbody.MovePosition(myOwner.transform.position + myOwner.transform.forward * myOwner.currSpeed * Time.deltaTime);
+
+        /*myOwner.rbody.MovePosition(myOwner.transform.position + myOwner.transform.forward * myOwner.currSpeed * Time.deltaTime);*/
+        myOwner.Move(myOwner.transform.forward * myOwner.currSpeed * Time.deltaTime);
+
         if(Vector3.Distance(myOwner.transform.position, myOwner.attackTarget.position) < 1.5f) // replace 1f with range variable from myOwner
         {
             myOwner.StartCoroutine(myOwner.attack(attackTarget.position));
@@ -294,12 +298,14 @@ public class MeleeEnemyChase : NPCState
         Vector3 myOwnerPos = new Vector3(myOwner.transform.position.x, 0, myOwner.transform.position.z);
         Vector3 lastKnownLoc = new Vector3(lastKnownLocation.x, 0, lastKnownLocation.z);
         Vector3 dir = (lastKnownLoc - myOwnerPos).normalized;
+
         Quaternion lookDir = Quaternion.LookRotation(dir);
         myOwner.transform.rotation = Quaternion.Lerp(myOwner.transform.rotation, lookDir, Time.deltaTime * 4f);
         myOwner.Head.forward = myOwner.transform.forward;
-        myOwner.rbody.MovePosition(myOwner.transform.position + myOwner.transform.forward * myOwner.currSpeed * Time.deltaTime);
-        if (Vector3.Distance(myOwner.transform.position, lastKnownLocation) < 1f)
-        {
+
+        // myOwner.rbody.MovePosition(myOwner.transform.position + myOwner.transform.forward * myOwner.currSpeed * Time.deltaTime);
+        myOwner.Move(myOwner.transform.forward * myOwner.currSpeed * Time.deltaTime);
+        if (Vector3.Distance(myOwner.transform.position, lastKnownLocation) < 1f) {
             myOwner.changeState(new MeleeEnemyScan());
         }
     }
@@ -322,12 +328,10 @@ public class MeleeEnemyScan : NPCState
 
     public override void Execute()
     {
-        if (myOwner.checkView())
-        {
+        if (myOwner.checkView()) {
             myOwner.changeState(new MeleeEnemyChase());
         }
-        if (!anim.GetCurrentAnimatorStateInfo(0).IsName("Scan"))
-        {
+        if (!anim.GetCurrentAnimatorStateInfo(0).IsName("Scan")) {
             myOwner.changeState(new NPCWander());
         }
     }
@@ -345,7 +349,7 @@ public class MeleeEnemySeduced : NPCState
     public override void Enter(Movement owner) // assumes new attackTarget has been established.
     {
         myOwner = owner;
-        myOwner.rbody = owner.rbody;
+        // myOwner.rbody = owner.rbody;
         myOwner.currSpeed = myOwner.maxSpeed;
         master = myOwner.attackTarget;
     }
@@ -372,7 +376,8 @@ public class MeleeEnemySeduced : NPCState
         if (dist > 5f)
         {
             Vector3 dir = dirModded.normalized;
-            myOwner.rbody.MovePosition(dir * myOwner.currSpeed * Time.deltaTime);
+            // myOwner.rbody.MovePosition(dir * myOwner.currSpeed * Time.deltaTime);
+            myOwner.Move(dir * myOwner.currSpeed * Time.deltaTime);
         }
     }
 
@@ -387,7 +392,8 @@ public class MeleeEnemySeduced : NPCState
         }
         else {
             Vector3 dir = dirModded.normalized;
-            myOwner.rbody.MovePosition(dir * myOwner.currSpeed * Time.deltaTime);
+            // myOwner.rbody.MovePosition(dir * myOwner.currSpeed * Time.deltaTime);
+            myOwner.Move(dir * myOwner.currSpeed * Time.deltaTime);
         }
     }
 

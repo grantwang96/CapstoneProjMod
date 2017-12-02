@@ -5,8 +5,10 @@ using UnityEngine;
 public abstract class Damageable : MonoBehaviour
 {
     public int max_health;
-    int health;
-    public int getHealth() { return health; }
+    int _health;
+    public int health {
+        get { return _health; }
+        set { _health = value; } }
 
     public bool transmutable = true;
 
@@ -15,6 +17,7 @@ public abstract class Damageable : MonoBehaviour
     public bool dead;
 
     public Rigidbody rbody;
+    public CharacterController charCon;
     public MeshRenderer myRend;
 
     public Movement myMovement;
@@ -22,7 +25,8 @@ public abstract class Damageable : MonoBehaviour
 
     public virtual void Start()
     {
-        rbody = GetComponent<Rigidbody>();
+        // rbody = GetComponent<Rigidbody>();
+        charCon = GetComponent<CharacterController>();
         myRend = GetComponent<MeshRenderer>();
         myMovement = GetComponent<Movement>();
         health = max_health;
@@ -40,7 +44,6 @@ public abstract class Damageable : MonoBehaviour
             return;
         }
         health -= hpLost;
-        Debug.Log("Ow");
         if(health <= 0) { dead = true; }
         if(dead)
         {
@@ -62,7 +65,8 @@ public abstract class Damageable : MonoBehaviour
 
     public virtual void knockBack(Vector3 dir, float force)
     {
-        rbody.AddForce(dir * force, ForceMode.Impulse);
+        // rbody.AddForce(dir * force, ForceMode.Impulse);
+        myMovement.knockBack(dir, force);
     }
 
     public virtual void Fly(float force, float duration)
@@ -206,6 +210,11 @@ public abstract class Movement : MonoBehaviour
         if(currState != null && hamper <= 0) { currState.Execute(); }
     }
 
+    public virtual void Move(Vector3 movement)
+    {
+        rbody.MovePosition(transform.position + movement);
+    }
+
     public virtual bool checkView()
     {
         if(attackTarget == null) { return false; }
@@ -214,9 +223,13 @@ public abstract class Movement : MonoBehaviour
         if(dist <= sightRange && angle <= sightAngle) {
             float angleInterval = 360 / numRaycasts;
             RaycastHit rayHit;
-            if (Physics.Raycast(Head.position, (attackTarget.position - Head.position).normalized, out rayHit, sightRange, scanLayer))
-            {
-                if (rayHit.collider.transform == attackTarget) { return true; }
+            Debug.DrawRay(Head.position, attackTarget.position - Head.position, Color.yellow);
+            if (Physics.Raycast(Head.position, (attackTarget.position - Head.position).normalized, out rayHit, sightRange, scanLayer)) {
+                if (rayHit.collider.transform == attackTarget){ return true; }
+                Damageable dam = rayHit.collider.GetComponent<Damageable>();
+                if(dam != null && dam.parentHit != null) {
+                    if(dam.parentHit.transform == attackTarget) { return true; }
+                }
             }
             for (int i = 0; i < numRaycasts; i++)
             {
@@ -228,7 +241,12 @@ public abstract class Movement : MonoBehaviour
                 offset = transform.TransformDirection(offset);
                 if (Physics.Raycast(Head.position, (offset - Head.position).normalized, out rayHit, sightRange, scanLayer)) {
                     if (rayHit.collider.transform == attackTarget) { return true; }
+                    Damageable dam = rayHit.collider.GetComponent<Damageable>();
+                    if (dam != null && dam.parentHit != null) {
+                        if (dam.parentHit.transform == attackTarget) { return true; }
+                    }
                 }
+                Debug.DrawRay(Head.position, offset - Head.position, Color.yellow);
             }
         }
         return false;
