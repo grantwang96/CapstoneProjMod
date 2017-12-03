@@ -27,7 +27,7 @@ public class PlayerDamageable : Damageable {
 	public override void Start () {
         base.Start();
         // playerCanvas = Instantiate(playerCanvasPrefab);
-        healthBar = playerCanvas.Find("HealthBar").GetComponent<Image>();
+        // healthBar = playerCanvas.Find("HealthBar").GetComponent<Image>();
 	}
 	
 	// Update is called once per frame

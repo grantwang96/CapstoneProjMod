@@ -95,7 +95,7 @@ public class PlayerMovementV2 : Movement {
         while (!charCon.isGrounded)
         {
             charCon.Move(flatForce * Time.deltaTime);
-            charCon.Move(Vector3.up * yMove * Time.deltaTime);
+            // charCon.Move(Vector3.up * yMove * Time.deltaTime);
             yield return new WaitForEndOfFrame();
         }
         Vector3 start = flatForce;

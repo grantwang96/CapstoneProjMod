@@ -43,6 +43,7 @@ public abstract class Damageable : MonoBehaviour
             parentHit.TakeDamage(attacker, hpLost, dir, force);
             return;
         }
+        Debug.Log(transform.name + " takes " + hpLost + " points of damage!");
         health -= hpLost;
         if(health <= 0) { dead = true; }
         if(dead)

@@ -49,7 +49,7 @@ public class PlayerMagic : MonoBehaviour, SpellCaster {
 
     public void fireSpell()
     {
-        spellsInventory[currentHeld].primaryEffect.ActivateSpell(this, spellsInventory[currentHeld].secondaryEffect);
+        spellsInventory[currentHeld].primaryEffect.ActivateSpell(this, spellsInventory[currentHeld].secondaryEffect, transform.forward);
     }
 
     public Transform returnGun() { return gun; }

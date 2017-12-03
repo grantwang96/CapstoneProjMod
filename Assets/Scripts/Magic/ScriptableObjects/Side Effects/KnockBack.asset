@@ -11,5 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efbb4554268c1df4c8bb70f76158fd6a, type: 3}
   m_Name: KnockBack
   m_EditorClassIdentifier: 
-  force: 30
+  force: 60
   upwardForce: 0.1
+  waitTime: 0
+  valueModifier: 3

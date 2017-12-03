@@ -6,6 +6,7 @@ public class Missile : MonoBehaviour {
 
     public Transform originator;
     public bool friendlyOff = true;
+    public bool mainShot = true;
     [SerializeField] float delayFriendlyOn;
 
     [SerializeField] int _bouncesLeft;
@@ -14,6 +15,9 @@ public class Missile : MonoBehaviour {
     public bool dead { get { return _dead; } set { _dead = value; } }
     public float lifeSpan;
     float startTime;
+
+    public int power = 0;
+    public float duration = 0f;
 
     public SpellPrimary primaryEffect;
     public SpellSecondary secondaryEffect;
@@ -29,7 +33,7 @@ public class Missile : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         startTime = Time.time;
-        StartCoroutine(delayEffectiveness());
+        // StartCoroutine(delayEffectiveness());
 	}
 
     void Update() {
@@ -37,7 +41,6 @@ public class Missile : MonoBehaviour {
     }
 
     void OnCollisionEnter(Collision coll) {
-        Debug.Log(originator.name + " hit " + coll.collider.transform.name);
         if (primaryEffect) { // if primaryEffect is not null
             primaryEffect.OnHit(this, coll.collider);
         }

@@ -6,6 +6,7 @@ public class SpellPrimary : ScriptableObject {
 
     public float force; // for travel
     public int power; // For damage or healing
+    public float duration;
 
     public float powerLevelModifier;
     [Range(1, 10)] public int powerLevel;
@@ -13,8 +14,9 @@ public class SpellPrimary : ScriptableObject {
     public Color baseColor;
 
     public Missile projectilePrefab; // projectile used
+    public ParticleSystem castEffect; // particle effect when firing spell
 
-    public virtual void ActivateSpell(SpellCaster user, SpellSecondary secondaryEffect) // When the spell is fired
+    public virtual void ActivateSpell(SpellCaster user, SpellSecondary secondaryEffect, Vector3 fireDir) // When the spell is fired
     {
         Transform firingPoint = user.returnGun();
         if (firingPoint)
@@ -34,9 +36,17 @@ public class SpellPrimary : ScriptableObject {
             }
             */
 
+            // Create spawn shots
+            ParticleSystem gunsmoke = Instantiate(castEffect, firePoint, Quaternion.LookRotation(fireDir));
+            ParticleSystem.MainModule smokeMain = gunsmoke.main;
+            smokeMain.startColor = baseColor;
+            Destroy(gunsmoke.gameObject, smokeMain.startLifetime.constant);
+
             // Create a new missile object
-            Missile newProjectile = Instantiate(projectilePrefab, firePoint, user.returnHead().rotation);
+            Missile newProjectile = Instantiate(projectilePrefab, firePoint, Quaternion.LookRotation(fireDir));
             newProjectile.bounceCount = 0;
+            newProjectile.power = power;
+            newProjectile.duration = duration;
             newProjectile.primaryEffect = this;
             newProjectile.secondaryEffect = secondaryEffect;
             newProjectile.originator = user.returnBody();
@@ -54,7 +64,9 @@ public class SpellPrimary : ScriptableObject {
             trail.endColor = baseColor;
 
             // Apply secondary effects
-            secondaryEffect.MessUp(user.returnBody(), newProjectile);
+            if(secondaryEffect != null) {
+                secondaryEffect.MessUp(user.returnBody(), newProjectile);
+            }
         }
     }
 

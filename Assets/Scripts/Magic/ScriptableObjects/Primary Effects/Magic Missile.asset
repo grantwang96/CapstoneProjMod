@@ -13,9 +13,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   force: 50
   power: 10
+  duration: 0
   powerLevelModifier: 1
   powerLevel: 1
   baseColor: {r: 0.86206913, g: 0, b: 1, a: 0.7058824}
   projectilePrefab: {fileID: 114765780417504250, guid: 88670340bf7213645838c2e6f7ce896e,
     type: 2}
-  knockBackForce: 5
+  castEffect: {fileID: 198545228210204070, guid: 828a4427cc7df2942a99b970db3979fe,
+    type: 2}
+  knockBackForce: 10
+  upwardKnockup: 0.5

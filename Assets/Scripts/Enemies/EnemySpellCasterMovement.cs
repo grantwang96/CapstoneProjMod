@@ -14,7 +14,7 @@ public class EnemySpellCasterMovement : Movement, SpellCaster
 
     public CharacterController charCon;
 
-    float yMove = Physics.gravity.y;
+    [SerializeField] float yMove = Physics.gravity.y;
     bool falling = true;
 
     #endregion
@@ -25,21 +25,21 @@ public class EnemySpellCasterMovement : Movement, SpellCaster
     {
         hamper = 0;
         charCon = GetComponent<CharacterController>();
+        yMove = Physics.gravity.y;
         blueprint.setup(this);
         currSpeed = baseSpeed;
     }
 
-    public override void Update()
-    {
+    public override void Update() {
         base.Update();
     }
 
     void FixedUpdate()
     {
         if (falling) {
-            yMove -= Time.deltaTime;
+            yMove += Time.deltaTime * Physics.gravity.y;
         }
-        Move(Vector3.up * Physics.gravity.y * Time.deltaTime);
+        Move(Vector3.up * yMove * Time.deltaTime);
     }
 
     public override void Move(Vector3 movement)
@@ -50,10 +50,10 @@ public class EnemySpellCasterMovement : Movement, SpellCaster
 
     public override void knockBack(Vector3 dir, float force)
     {
-        StartCoroutine(processKnockBack(dir, force));
+        StartCoroutine(processKnockBack(dir * force));
     }
 
-    IEnumerator processKnockBack(Vector3 dir, float force)
+    IEnumerator processKnockBack(Vector3 dir)
     {
         hamper++;
         yMove = dir.y;
@@ -64,7 +64,7 @@ public class EnemySpellCasterMovement : Movement, SpellCaster
         while (!charCon.isGrounded)
         {
             charCon.Move(flatForce * Time.deltaTime);
-            charCon.Move(Vector3.up * yMove * Time.deltaTime);
+            // charCon.Move(Vector3.up * yMove * Time.deltaTime);
             yield return new WaitForEndOfFrame();
         }
         Vector3 start = flatForce;
@@ -95,13 +95,15 @@ public class EnemySpellCasterMovement : Movement, SpellCaster
     public override IEnumerator attack(Vector3 target)
     {
         hamper++;
+        Vector3 targetingDir = target - transform.position;
+        targetingDir.y = 0;
+        gun.forward = targetingDir;
         anim.Play("Attack");
         bool fired = false;
-        if (heldSpell != null) { heldSpell.primaryEffect.ActivateSpell(this, heldSpell.secondaryEffect); }
+        if (heldSpell != null) { heldSpell.primaryEffect.ActivateSpell(this, heldSpell.secondaryEffect, Head.forward); }
         while (anim.GetCurrentAnimatorStateInfo(0).IsName("Attack"))
         {
             if(anim.GetCurrentAnimatorStateInfo(0).length >= 0.5f && !fired) {
-                Debug.Log("Pew");
                 fired = true;
                 // if (heldSpell != null) { heldSpell.primaryEffect.ActivateSpell(this, heldSpell.secondaryEffect); }
             }

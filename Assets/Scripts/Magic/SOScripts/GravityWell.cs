@@ -7,9 +7,9 @@ public class GravityWell : SpellPrimary {
 
     public GravityWellVortex gravWellPrefab;
 
-    public override void ActivateSpell(SpellCaster user, SpellSecondary secondaryEffect)
+    public override void ActivateSpell(SpellCaster user, SpellSecondary secondaryEffect, Vector3 fireDir)
     {
-        base.ActivateSpell(user, secondaryEffect);
+        base.ActivateSpell(user, secondaryEffect, fireDir);
     }
 
     public override void OnHit(Missile proj, Collider coll)

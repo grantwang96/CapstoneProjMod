@@ -19,7 +19,6 @@ public class SpellCasterEnemyIdle : NPCState
         if (myOwner.checkView())
         {
             // change state to aggro
-            Debug.Log("I can see you!");
             myOwner.changeState(new SpellCasterEnemyAggro());
             return;
         }
@@ -105,7 +104,6 @@ public class SpellCasterEnemyWander : NPCState
         {
             // change state to aggro
             myOwner.changeState(new SpellCasterEnemyAggro());
-            Debug.Log("I can see you!");
             return;
         }
     }
@@ -126,7 +124,7 @@ public class SpellCasterEnemyWander : NPCState
         {
             foreach (RaycastHit hit in rayHits)
             {
-                if (hit.collider.tag == "Wall")
+                if (hit.collider.tag == "Wall" || hit.collider.tag == "Furniture")
                 {
                     problem = true;
                     emergencyTurn();
@@ -183,7 +181,7 @@ public class SpellCasterEnemyAggro : NPCState
     float lostSightLimit;
 
     int shootCount;
-    float shotIntervalTime;
+    float shotIntervalTime = 0.3f;
 
     Vector3 startMoveLoc;
     float maxTravelDistance;
@@ -242,10 +240,10 @@ public class SpellCasterEnemyAggro : NPCState
         shotIntervalTime = Random.Range(0.1f, 0.4f);
         for (int i = 0; i < shootCount; i++) {
             yield return new WaitForSeconds(shotIntervalTime);
+            myOwner.Head.rotation = Quaternion.LookRotation(lastKnownLocation - myOwner.transform.position);
             RaycastHit rayHit;
             if(Physics.Raycast(myOwner.transform.position, myOwner.attackTarget.position - myOwner.transform.position, out rayHit, myOwner.sightRange)) {
-
-                myOwner.StartCoroutine(myOwner.attack(attackTarget.position));
+                myOwner.StartCoroutine(myOwner.attack(lastKnownLocation));
             }
         }
     }
@@ -266,7 +264,7 @@ public class SpellCasterEnemyAggro : NPCState
                 Vector3 groundCheck = (myOwner.transform.right * right) - myOwner.transform.up;
                 int clear = checkGround(groundCheck);
 
-                if(clear == 0) { right *= -1; Debug.Log("Herp"); }
+                if(clear == 0) { right *= -1; }
                 else if(clear == 2) {
                     // myOwner.rbody.MovePosition(myOwner.transform.position - myOwner.transform.transform.forward * myOwner.currSpeed * Time.deltaTime);
                     myOwner.Move(myOwner.transform.transform.forward * myOwner.currSpeed * Time.deltaTime);
@@ -305,7 +303,6 @@ public class SpellCasterEnemyAggro : NPCState
         if(Physics.Raycast(myOwner.transform.position, lookDir, out rayHit, 3f, myOwner.obstacleLayer)) {
             if(rayHit.collider.tag.Contains("Ground")) { return 1; }
             else if(rayHit.collider.tag.Contains("Wall") || rayHit.collider.tag.Contains("Furniture")) { return 2; }
-            Debug.Log("Hit: " + rayHit.transform.name);
         }
         return 0;
     }
@@ -322,7 +319,6 @@ public class SpellCasterEnemyAggro : NPCState
         myOwner.Move(myOwner.transform.forward * myOwner.currSpeed * Time.deltaTime);
         if (Vector3.Distance(myOwner.transform.position, lastKnownLocation) < 0.4f) // If player is not seen, enter idling stage
         {
-            Debug.Log("Guess I couldn't find you.");
             myOwner.changeState(new NPCIdle());
         }
     }
