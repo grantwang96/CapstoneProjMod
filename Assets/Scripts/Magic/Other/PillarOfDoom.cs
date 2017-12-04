@@ -34,7 +34,6 @@ public class PillarOfDoom : MonoBehaviour {
         startTime = Time.time;
         while(Time.time - startTime < duration) {
             float dist = partSpeed * (Time.time - startTime);
-            Debug.Log("Flame Dist = " + dist);
             RaycastHit[] rayHits = Physics.SphereCastAll(transform.position, radius, Vector3.up, dist);
             foreach(RaycastHit hit in rayHits) {
                 Damageable dam = hit.collider.GetComponent<Damageable>();

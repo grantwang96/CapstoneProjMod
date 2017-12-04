@@ -15,9 +15,11 @@ public class Transmute : SpellPrimary {
     public override void OnHit(Missile proj, Collider coll)
     {
         // if(coll.transform == proj.originator) { return; }
+        /*
         if (proj.friendlyOff && coll.transform == proj.originator) {
             return;
         }
+        */
         Damageable collDam = coll.GetComponent<Damageable>();
         if (collDam) {
             collDam.InitiateTransmutation(proj.duration, possibleReplacements[Random.Range(0, possibleReplacements.Length)]);

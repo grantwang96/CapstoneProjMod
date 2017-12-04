@@ -225,7 +225,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1649275532310422}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.09, y: 0.7, z: 10}
+  m_LocalPosition: {x: -6.09, y: 0.7, z: 33.63}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4291437024226586}
@@ -729,10 +729,10 @@ MonoBehaviour:
   raySpread: 1
   scanLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 257
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1
   attackTarget: {fileID: 0}
   FistColl: {fileID: 135645020216757144}
   charCon: {fileID: 143075652813635882}

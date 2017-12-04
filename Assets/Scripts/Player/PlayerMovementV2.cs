@@ -86,6 +86,7 @@ public class PlayerMovementV2 : Movement {
 
     IEnumerator knockingBack(Vector3 force)
     {
+        Debug.Log("Oof");
         hamper++;
         yMove = force.y;
         charCon.Move(force * Time.deltaTime);
@@ -146,7 +147,7 @@ public class PlayerMovementV2 : Movement {
             }
             if(coll.collider.attachedRigidbody != null) {
                 Vector3 velocity = coll.collider.transform.position - transform.position;
-                coll.collider.attachedRigidbody.AddForce(velocity.normalized * currSpeed);
+                coll.collider.attachedRigidbody.AddForce(velocity.normalized * currSpeed * 10);
             }
         }
     }

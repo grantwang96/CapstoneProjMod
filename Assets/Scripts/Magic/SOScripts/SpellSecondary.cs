@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class SpellSecondary : ScriptableObject {
 
+    public int ammo;
+    public float coolDown;
+
+    public string title;
+    public string description;
+
     public virtual void MessUp(Transform user, Missile projectile) // manipulate how the projectile is created
     {
 

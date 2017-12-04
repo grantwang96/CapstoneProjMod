@@ -52,8 +52,8 @@ public class Missile : MonoBehaviour {
 
     public void Deactivate()
     {
-        sparkles.gameObject.SetActive(false);
-        trail.gameObject.SetActive(false);
+        if (sparkles) { sparkles.gameObject.SetActive(false); }
+        if (trail) { trail.gameObject.SetActive(false); }
     }
 
     public void Activate()

@@ -16,7 +16,11 @@ public class NPCScript : Movement {
     public override void Start()
     {
         setup();
+        hamper = 0;
         charCon = GetComponent<CharacterController>();
+        yMove = Physics.gravity.y;
+        blueprint.setup(this);
+        currSpeed = baseSpeed;
     }
 
     public override void Update()
@@ -26,8 +30,10 @@ public class NPCScript : Movement {
 
     void FixedUpdate()
     {
-        if (falling) { yMove -= Time.deltaTime; }
-        Move(Vector3.up * Physics.gravity.y * Time.deltaTime);
+        if (falling) {
+            yMove += Time.deltaTime * Physics.gravity.y;
+        }
+        Move(Vector3.up * yMove * Time.deltaTime);
     }
 
     public override void setup()
@@ -48,7 +54,7 @@ public class NPCScript : Movement {
 
     public override void knockBack(Vector3 dir, float force)
     {
-        if (movementTakeOver != null) { StopCoroutine(movementTakeOver); }
+        if (movementTakeOver != null) { StopCoroutine(movementTakeOver); hamper--; }
         movementTakeOver = StartCoroutine(processKnockBack(dir, force));
     }
 
@@ -63,12 +69,11 @@ public class NPCScript : Movement {
         while (!charCon.isGrounded)
         {
             charCon.Move(flatForce * Time.deltaTime);
-            charCon.Move(Vector3.up * yMove * Time.deltaTime);
+            // charCon.Move(Vector3.up * yMove * Time.deltaTime);
             yield return new WaitForEndOfFrame();
         }
         Vector3 start = flatForce;
         float prog = 0f;
-        Debug.Log(flatForce);
         while (flatForce != Vector3.zero)
         {
             charCon.Move(flatForce * Time.deltaTime);
@@ -106,10 +111,16 @@ public class NPCScript : Movement {
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        float dist = Vector3.Distance(hit.point, transform.position + Vector3.up * charCon.height / 2);
-        if(dist < 0.1f) {
+        if (Vector3.Distance(hit.point, transform.position + Vector3.up * charCon.height / 2) < 0.1f)
+        {
             yMove = 0f;
+            return;
         }
-        if (charCon.isGrounded) { falling = false; }
+        if (charCon.isGrounded)
+        {
+            falling = false;
+            yMove = Physics.gravity.y;
+            return;
+        }
     }
 }

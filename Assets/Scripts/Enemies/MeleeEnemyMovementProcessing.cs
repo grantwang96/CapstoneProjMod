@@ -172,13 +172,13 @@ public class NPCWander : NPCState
                 {
                     problem = true;
                     emergencyTurn();
-                    Debug.Log("That's a wall");
+                    // Debug.Log("That's a wall");
                 }
             }
         }
         else {
             problem = true;
-            Debug.Log("That's a cliff");
+            // Debug.Log("That's a cliff");
         }
         if (problem) { emergencyTurn(); }
         else { emergencyTurning = false; }

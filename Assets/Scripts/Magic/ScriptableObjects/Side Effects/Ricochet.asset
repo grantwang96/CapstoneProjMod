@@ -11,6 +11,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87ed95b4bfde3e44a95d43976dd13f38, type: 3}
   m_Name: Ricochet
   m_EditorClassIdentifier: 
+  ammo: 6
+  coolDown: 0
+  title: Ricocheting
+  description: Bounces off surfaces
   additionalBounces: 3
   physMat: {fileID: 13400000, guid: e39cc1574c0b79241bd85782ba1d958e, type: 2}
   forceModifier: 1

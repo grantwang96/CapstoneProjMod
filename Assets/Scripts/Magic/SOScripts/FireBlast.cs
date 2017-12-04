@@ -10,9 +10,15 @@ public class FireBlast : SpellPrimary {
 
     public int shrapnelCountLowerBound;
     public int shrapnelCountUpperBound;
+    public float subShotMinimumForce;
+    public float subShotMaximumForce;
     public int subBlastPowerMod;
     public float mass;
     public float radius;
+    public float subRadius;
+
+    public float knockBackForce;
+    public float upwardKnockup;
 
     public override void ActivateSpell(SpellCaster user, SpellSecondary secondaryEffect, Vector3 fireDir)
     {
@@ -21,8 +27,17 @@ public class FireBlast : SpellPrimary {
 
     public override void OnHit(Missile proj, Collider coll)
     {
-        if(proj.bounceCount <= 0) {
-            proj.StartCoroutine(firePillar(coll.transform, proj));
+        if (proj.mainShot && coll.transform == proj.originator) {
+            Debug.Log("Friendly Hit!");
+            return;
+        }
+        if (proj.bounceCount <= 0) {
+            if (proj.mainShot) {
+                proj.StartCoroutine(firePillar(coll.transform, proj));
+            }
+            else {
+                subBlastHit(proj);
+            }
             // proj.Die();
         }
         else {
@@ -38,11 +53,10 @@ public class FireBlast : SpellPrimary {
         rbody.useGravity = false;
         rbody.isKinematic = true;
         proj.GetComponent<Collider>().enabled = false;
-        ParticleSystem flame = Instantiate(tinyFlamePrefab, coll.position, Quaternion.identity);
+        ParticleSystem flame = Instantiate(tinyFlamePrefab, proj.transform.position, Quaternion.identity);
         ParticleSystem.MainModule flameMain = flame.main;
-        while(flameMain.startLifetime.constant > 0f) {
-            ParticleSystem.MinMaxCurve lifeTime = flameMain.startLifetime;
-            lifeTime.constant -= Time.deltaTime;
+        while(flame.startLifetime > 0f) {
+            flame.startLifetime -= Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
         // Transform newPillar = Instantiate(firePillarPrefab, flame.transform.position, Quaternion.identity);
@@ -66,6 +80,7 @@ public class FireBlast : SpellPrimary {
             offset.z = projFired.transform.position.z + radius * Mathf.Cos(ang * Mathf.Deg2Rad);
             subBlast(offset, newPillarOfDoom.position, projFired.originator);
         }
+        Destroy(projFired.gameObject);
     }
 
     void subBlast(Vector3 position, Vector3 startingPos, Transform caster)
@@ -76,13 +91,30 @@ public class FireBlast : SpellPrimary {
         newproj.originator = caster;
         newproj.primaryEffect = this;
         newproj.power = power;
+        newproj.mainShot = false;
+        newproj.trail.startColor = baseColor;
         Rigidbody rbody = newSubBlast.GetComponent<Rigidbody>();
         rbody.useGravity = true;
         rbody.mass = mass;
-        rbody.AddForce(newSubBlast.transform.forward * UnityEngine.Random.Range(6, 12), ForceMode.Impulse);
-        ParticleSystem.MainModule main = newproj.GetComponent<ParticleSystem>().main;
+        rbody.AddForce(newSubBlast.transform.forward * Random.Range(subShotMinimumForce, subShotMaximumForce), ForceMode.Impulse);
+        ParticleSystem.MainModule main = newproj.sparkles.main;
         main.startColor = baseColor;
-        newproj.mainShot = false;
+    }
+
+    void subBlastHit(Missile proj) {
+        Collider[] colls = Physics.OverlapSphere(proj.transform.position, subRadius);
+        if(colls.Length != 0) {
+            foreach(Collider coll in colls) {
+                Damageable dam = coll.GetComponent<Damageable>();
+                if (dam) {
+                    Vector3 knockBack = proj.transform.forward;
+                    knockBack.y = upwardKnockup;
+                    knockBack = knockBack.normalized;
+                    dam.TakeDamage(proj.originator, proj.power, knockBack, knockBackForce);
+                }
+            }
+        }
+        proj.Die();
     }
 
 }

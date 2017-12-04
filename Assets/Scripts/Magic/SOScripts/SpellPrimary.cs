@@ -12,6 +12,11 @@ public class SpellPrimary : ScriptableObject {
     [Range(1, 10)] public int powerLevel;
 
     public Color baseColor;
+    public int ammo;
+    public float coolDown;
+
+    public string title;
+    public string description;
 
     public Missile projectilePrefab; // projectile used
     public ParticleSystem castEffect; // particle effect when firing spell

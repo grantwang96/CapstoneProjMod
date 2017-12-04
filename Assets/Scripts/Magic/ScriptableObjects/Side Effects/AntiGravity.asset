@@ -11,4 +11,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af4cdb27caa003a4e810595f10534662, type: 3}
   m_Name: AntiGravity
   m_EditorClassIdentifier: 
+  ammo: 5
+  coolDown: 0
+  title: Soaring
+  description: Will attempt to fly away
   upwardForce: 4
