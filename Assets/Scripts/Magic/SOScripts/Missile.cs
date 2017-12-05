@@ -13,6 +13,7 @@ public class Missile : MonoBehaviour {
     public int bounceCount { get { return _bouncesLeft; } set { _bouncesLeft = value; } }
     bool _dead;
     public bool dead { get { return _dead; } set { _dead = value; } }
+    public List<GameObject> toBeDeleted = new List<GameObject>(); // list of gameobjects that must also be destroyed when missile dies
     public float lifeSpan;
     float startTime;
 
@@ -28,7 +29,7 @@ public class Missile : MonoBehaviour {
     public ParticleSystem bounceEffect;
     [SerializeField] ParticleSystem deathEffect;
 
-    public Coroutine messUpEffect;
+    public Coroutine messUpEffect; // movement coroutine that overrides/modifies normal movement
 
 	// Use this for initialization
 	void Start () {
@@ -66,11 +67,21 @@ public class Missile : MonoBehaviour {
     {
         if (_dead) { return; }
         _dead = true;
+        transform.parent = null;
         if(messUpEffect != null) { StopCoroutine(messUpEffect); }
         ParticleSystem newDeath = Instantiate(deathEffect, transform.position, Quaternion.identity);
         ParticleSystem.MainModule main = newDeath.main;
         main.startColor = primaryEffect.baseColor;
         Destroy(newDeath.gameObject, 1f);
+
+        if(toBeDeleted.Count != 0) {
+            while(toBeDeleted.Count != 0)
+            {
+                GameObject wrecked = toBeDeleted[0];
+                toBeDeleted.RemoveAt(0);
+                Destroy(wrecked.gameObject);
+            }
+        }
 
         if(sparkles != null) {
             sparkles.Stop();

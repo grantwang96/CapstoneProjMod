@@ -18,7 +18,7 @@ MonoBehaviour:
   powerLevel: 1
   baseColor: {r: 0, g: 0.8758622, b: 1, a: 0.7058824}
   ammo: 10
-  coolDown: 0.1
+  coolDown: 0.5
   title: Vortex
   description: Traps foes in whirlpool
   projectilePrefab: {fileID: 114765780417504250, guid: 88670340bf7213645838c2e6f7ce896e,

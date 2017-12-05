@@ -10,6 +10,13 @@ public class SpellSecondary : ScriptableObject {
     public string title;
     public string description;
 
+    public Transform decoration;
+
+    public virtual void setup(SpellBook spellBook)
+    {
+
+    }
+
     public virtual void MessUp(Transform user, Missile projectile) // manipulate how the projectile is created
     {
 

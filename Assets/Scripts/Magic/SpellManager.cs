@@ -15,22 +15,39 @@ public class SpellManager : MonoBehaviour {
         Instance = this;
 	}
 
-    public void GenerateSpell()
+    public SpellBook GenerateSpell(Vector3 position) // Generate spell at location
     {
-
+        SpellBook newSpellBook = Instantiate(spellBookPrefab, position, Quaternion.identity);
+        newSpellBook.primaryEffect = primarySpellEffects[Random.Range(0, primarySpellEffects.Count)];
+        newSpellBook.secondaryEffect = secondarySpellEffects[Random.Range(0, secondarySpellEffects.Count)];
+        return newSpellBook;
     }
 
-    public void GenerateSpell(SpellPrimary primary, SpellSecondary secondary)
+    public SpellBook GenerateSpell(SpellPrimary primary) // Generate spell given spell primary
     {
-
-    }
-	
-    public void GenerateSpell(Vector3 position)
-    {
-
+        SpellBook newSpellBook = Instantiate(spellBookPrefab, Vector3.zero, Quaternion.identity);
+        newSpellBook.primaryEffect = primary;
+        newSpellBook.secondaryEffect = secondarySpellEffects[Random.Range(0, secondarySpellEffects.Count)];
+        return newSpellBook;
     }
 
-    public void GenerateSpell(SpellPrimary primary, SpellSecondary secondary, Vector3 position)
+    public SpellBook GenerateSpell(SpellPrimary primary, Vector3 position) // Generate spell given spell primary and location
+    {
+        SpellBook newSpellBook = Instantiate(spellBookPrefab, position, Quaternion.identity);
+        newSpellBook.primaryEffect = primary;
+        newSpellBook.secondaryEffect = secondarySpellEffects[Random.Range(0, secondarySpellEffects.Count)];
+        return newSpellBook;
+    }
+
+    public SpellBook GenerateSpell(SpellPrimary primary, SpellSecondary secondary, Vector3 position) // Generate spell given primary, secondary, and location
+    {
+        SpellBook newSpellBook = Instantiate(spellBookPrefab, position, Quaternion.identity);
+        newSpellBook.primaryEffect = primary;
+        newSpellBook.secondaryEffect = secondary;
+        return newSpellBook;
+    }
+
+    public void spawnSpellEffect(Vector3 position) // create visual panache at spawn location
     {
 
     }

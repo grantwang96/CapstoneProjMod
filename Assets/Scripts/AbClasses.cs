@@ -144,12 +144,11 @@ public abstract class Damageable : MonoBehaviour
         }
     }
 
-    public virtual void vortexGrab(Transform center, float force, float duration)
+    public virtual void vortexGrab(Transform center, float force)
     {
         Vector3 dir = (center.position - transform.position).normalized;
         rbody.AddForce(dir * force);
-        Vector3 dirEdit = new Vector3(-dir.x, 0, -dir.z);
-        transform.rotation = Quaternion.LookRotation(dirEdit);
+        transform.forward = new Vector3(-dir.x, 0, -dir.z);
     }
 
     public virtual void Die()

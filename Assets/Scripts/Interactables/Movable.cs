@@ -62,10 +62,10 @@ public class Movable : Damageable
         Debug.Log(transform.name + " transmutable was set to " + transmutable);
     }
 
-    public override void vortexGrab(Transform center, float force, float duration)
+    public override void vortexGrab(Transform center, float force)
     {
         Vector3 dir = (center.position - transform.position).normalized;
-        GetComponent<Rigidbody>().AddForce(dir * force);
+        GetComponent<Rigidbody>().AddForce(force * dir);
     }
 
     public void fly(float force, float duration)

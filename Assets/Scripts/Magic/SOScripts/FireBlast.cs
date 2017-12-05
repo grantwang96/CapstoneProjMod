@@ -60,13 +60,13 @@ public class FireBlast : SpellPrimary {
             yield return new WaitForEndOfFrame();
         }
         // Transform newPillar = Instantiate(firePillarPrefab, flame.transform.position, Quaternion.identity);
-        mainBlast(proj);
+        mainBlast(proj, flame.transform);
         Destroy(flame.gameObject);
     }
 
-    void mainBlast(Missile projFired)
+    void mainBlast(Missile projFired, Transform flame)
     {
-        Transform newPillarOfDoom = Instantiate(firePillarPrefab, projFired.transform.position, Quaternion.identity);
+        Transform newPillarOfDoom = Instantiate(firePillarPrefab, flame.position, Quaternion.identity);
         newPillarOfDoom.GetComponent<PillarOfDoom>().damage = projFired.power;
         newPillarOfDoom.GetComponent<PillarOfDoom>().myCaster = projFired.originator;
         int shrapCount = UnityEngine.Random.Range(shrapnelCountLowerBound, shrapnelCountUpperBound);

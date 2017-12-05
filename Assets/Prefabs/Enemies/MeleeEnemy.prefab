@@ -729,7 +729,7 @@ MonoBehaviour:
   raySpread: 1
   scanLayer:
     serializedVersion: 2
-    m_Bits: 257
+    m_Bits: 4353
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 1

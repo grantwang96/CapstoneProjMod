@@ -62,13 +62,13 @@ public class NPCScript : Movement {
     {
         hamper++;
         yMove = dir.y;
-        charCon.Move(dir * Time.deltaTime);
+        Move(dir * Time.deltaTime);
         falling = true;
         Vector3 flatForce = dir;
         flatForce.y = 0;
         while (!charCon.isGrounded)
         {
-            charCon.Move(flatForce * Time.deltaTime);
+            Move(flatForce * Time.deltaTime);
             // charCon.Move(Vector3.up * yMove * Time.deltaTime);
             yield return new WaitForEndOfFrame();
         }
@@ -76,7 +76,7 @@ public class NPCScript : Movement {
         float prog = 0f;
         while (flatForce != Vector3.zero)
         {
-            charCon.Move(flatForce * Time.deltaTime);
+            Move(flatForce * Time.deltaTime);
             prog += Time.deltaTime;
             flatForce = Vector3.Lerp(start, Vector3.zero, prog);
             yield return new WaitForEndOfFrame();

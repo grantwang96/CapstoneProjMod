@@ -21,6 +21,7 @@ public class SpellBook : MonoBehaviour, Interactable {
     public Color baseColor;
 
     MeshRenderer[] allMeshes;
+    public Transform sparklyEffect;
     Rigidbody rbody;
 
     public ParticleSystem DieEffect;
@@ -29,17 +30,44 @@ public class SpellBook : MonoBehaviour, Interactable {
 	void Awake () {
         allMeshes = GetComponentsInChildren<MeshRenderer>();
         rbody = GetComponent<Rigidbody>();
-        if(secondaryEffect) {
-            ammo += secondaryEffect.ammo;
-            spellTitle = secondaryEffect.title;
-            spellDescription = "-" + secondaryEffect.description;
-        }
-        if (primaryEffect) {
+        SetupSpell();
+    }
+
+    void Start()
+    {
+        SetupSpell();
+    }
+
+    public void SetupSpell()
+    {
+        if (primaryEffect)
+        {
             ammo += primaryEffect.ammo;
             baseColor = primaryEffect.baseColor;
             baseColor.a = 1f;
-            spellTitle += " " + primaryEffect.title;
-            spellDescription += "\n-" + primaryEffect.description;
+            transform.Find("Cover").GetComponent<Renderer>().material.color = baseColor;
+            spellTitle = primaryEffect.title;
+            spellDescription = "-" + primaryEffect.description;
+        }
+        if (secondaryEffect)
+        {
+            ammo += secondaryEffect.ammo;
+            spellTitle = secondaryEffect.title + " " + spellTitle;
+            spellDescription += "\n-" + secondaryEffect.description;
+            if (transform.Find("Sparkles")) {
+                sparklyEffect = null;
+                Destroy(transform.Find("Sparkles").gameObject);
+            }
+            sparklyEffect = Instantiate(secondaryEffect.decoration, transform);
+            sparklyEffect.name = "Sparkles";
+            sparklyEffect.localPosition = Vector3.zero;
+            sparklyEffect.localRotation = transform.rotation;
+            ParticleSystem sparklyParticles = sparklyEffect.GetComponent<ParticleSystem>();
+            if (sparklyParticles)
+            {
+                ParticleSystem.MainModule main = sparklyParticles.main;
+                main.startColor = baseColor;
+            }
         }
         maxAmmo = ammo;
     }
@@ -67,6 +95,7 @@ public class SpellBook : MonoBehaviour, Interactable {
         foreach(MeshRenderer mr in allMeshes) {
             mr.enabled = false;
         }
+        sparklyEffect.gameObject.SetActive(false);
         GetComponent<SphereCollider>().enabled = false;
     }
 
@@ -75,6 +104,7 @@ public class SpellBook : MonoBehaviour, Interactable {
         foreach (MeshRenderer mr in allMeshes) {
             mr.enabled = true;
         }
+        sparklyEffect.gameObject.SetActive(true);
         GetComponent<SphereCollider>().enabled = true;
     }
 

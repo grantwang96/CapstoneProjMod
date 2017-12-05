@@ -18,7 +18,7 @@ MonoBehaviour:
   powerLevel: 1
   baseColor: {r: 1, g: 1, b: 0, a: 0.7058824}
   ammo: 3
-  coolDown: 0.2
+  coolDown: 1
   title: Flame
   description: Powerful Fire Pillar
   projectilePrefab: {fileID: 114765780417504250, guid: 88670340bf7213645838c2e6f7ce896e,
@@ -29,8 +29,8 @@ MonoBehaviour:
     type: 2}
   firePillarPrefab: {fileID: 4173943671798356, guid: d6db12eea41740948bdf675357768ac2,
     type: 2}
-  shrapnelCountLowerBound: 8
-  shrapnelCountUpperBound: 12
+  shrapnelCountLowerBound: 12
+  shrapnelCountUpperBound: 16
   subShotMinimumForce: 10
   subShotMaximumForce: 20
   subBlastPowerMod: 1

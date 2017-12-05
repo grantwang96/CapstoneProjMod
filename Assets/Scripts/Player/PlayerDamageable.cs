@@ -202,7 +202,6 @@ public class PlayerDamageable : Damageable {
     public override IEnumerator processTransmutation(float duration, GameObject replacement)
     {
         transmutable = false;
-        // Deactivate player attack?
         PlayerMagic myPlayMagic = myMovement.Head.GetComponent<PlayerMagic>();
         GameObject newBody = Instantiate(replacement, transform);
         newBody.transform.position = transform.position;
@@ -211,7 +210,6 @@ public class PlayerDamageable : Damageable {
         Damageable newDam = newBody.GetComponent<Damageable>();
         Collider coll = newBody.GetComponent<Collider>();
         float newHeight = coll.bounds.extents.y * 2;
-        // coll.enabled = false;
         newrbody.isKinematic = true;
         newrbody.useGravity = false;
         newDam.parentHit = this;
@@ -225,7 +223,6 @@ public class PlayerDamageable : Damageable {
         myMovement.Head.forward = transform.forward;
         Camera.main.transform.position -= transform.forward * 3f;
         Camera.main.transform.LookAt(myMovement.Head);
-        // myPlayMagic.enabled = false;
         yield return new WaitForSeconds(duration);
         charCon.detectCollisions = true;
         charCon.height = originHeight;
@@ -247,8 +244,10 @@ public class PlayerDamageable : Damageable {
         myMovement.knockBack(dir, force);
     }
 
-    public override void vortexGrab(Transform center, float force, float duration)
+    public override void vortexGrab(Transform center, float force)
     {
-        
+        float dist = Vector3.Distance(center.position, transform.position);
+        Vector3 dir = (center.position - transform.position).normalized;
+        myMovement.knockBack(dir, force);
     }
 }

@@ -78,6 +78,12 @@ public class NPCDamageable : Damageable {
         setTransmutable(true);
     } // Transmutation Co-routine
 
+    public override void vortexGrab(Transform center, float force)
+    {
+        Vector3 dir = (center.position - transform.position).normalized;
+        myMovement.knockBack(dir, force);
+    }
+
     void becomeSeduced(EnemyData.CombatType combatType)
     {
         switch (combatType)
@@ -99,6 +105,20 @@ public class NPCDamageable : Damageable {
     public override void Die()
     {
         // ScoreKeeper.Instance.incrementScore();
+        Debug.Log("I died!");
+        StartCoroutine(Death());
+    }
+
+    IEnumerator Death()
+    {
+        myMovement.hamper += 1000;
+        myMovement.anim.Play("Death");
+        GetComponent<Collider>().enabled = false;
+        yield return new WaitForEndOfFrame();
+        while (myMovement.anim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f) {
+            Debug.Log("I'm dying!");
+            yield return new WaitForEndOfFrame();
+        }
         base.Die();
     }
 }

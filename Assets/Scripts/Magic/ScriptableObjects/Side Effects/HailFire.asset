@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Name: HailFire
   m_EditorClassIdentifier: 
   ammo: 3
-  coolDown: 0.7
+  coolDown: 1.5
   title: Hailing
   description: Rains spell upon you
+  decoration: {fileID: 4028337005684486, guid: 85c2b0ff513d67b4dae94271113fc110, type: 2}
   delayTime: 1
   intervalTime: 0.3
   maxRadius: 2
   heightOffset: 6
-  lifeTime: 10
+  lifeTime: 5

@@ -234,9 +234,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   originator: {fileID: 0}
   friendlyOff: 1
+  mainShot: 1
   delayFriendlyOn: 0.2
   _bouncesLeft: 0
   lifeSpan: 10
+  power: 0
+  duration: 0
   primaryEffect: {fileID: 0}
   secondaryEffect: {fileID: 0}
   sparkles: {fileID: 198825687483241960}

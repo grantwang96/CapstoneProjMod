@@ -9,6 +9,7 @@ public class GravityWellVortex : MonoBehaviour {
     public float range;
     public float rangeIncreaseFactor;
     public float maxRange;
+    private const float gravitationalConstant = 6.672e-11f;
 
     public float speed;
     public float initialEmissionRate;
@@ -17,6 +18,7 @@ public class GravityWellVortex : MonoBehaviour {
 
     public ParticleSystem effects;
     public SphereCollider rangeFinder;
+    public Vector3 pointShift; // vector between edge before and after turn
 
     float startTime;
     List<Transform> trapped = new List<Transform>();
@@ -42,7 +44,10 @@ public class GravityWellVortex : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        Vector3 before = transform.position + transform.forward * range;
         transform.Rotate(0, speed * Time.deltaTime, 0);
+        Vector3 after = transform.position + transform.forward * range;
+        pointShift = transform.InverseTransformDirection(after - before);
         if (Time.time - startTime >= lifeTime) {
             Die();
         }
@@ -67,20 +72,26 @@ public class GravityWellVortex : MonoBehaviour {
             {
                 if(loser == null) { continue; }
                 Damageable dam = loser.GetComponent<Damageable>();
-                dam.vortexGrab(transform, force, Time.time - startTime);
+                if (dam) {
+                    dam.vortexGrab(transform, force);
+                }
+                else if(loser.GetComponent<Rigidbody>() != null) {
+                    loser.GetComponent<Rigidbody>().AddForce((transform.position - loser.position).normalized * force);
+                }
             }
         }
 	}
 
     void OnTriggerEnter(Collider coll)
     {
-        if(coll.GetComponent<Damageable>() != null)
+        Vector3 centerForce = (transform.position - coll.transform.position).normalized;
+        Vector3 combinedForce = centerForce + coll.transform.TransformDirection(pointShift);
+        if (coll.GetComponent<Damageable>() != null || coll.GetComponent<Rigidbody>() != null)
         {
             coll.transform.parent = transform;
             trapped.Add(coll.transform);
         }
     }
-
     void OnTriggerExit(Collider coll)
     {
         if (trapped.Contains(coll.transform))
@@ -89,7 +100,6 @@ public class GravityWellVortex : MonoBehaviour {
             trapped.Remove(coll.transform);
         }
     }
-
     void Die()
     {
         foreach(Transform loser in trapped) {
@@ -113,5 +123,15 @@ public class GravityWellVortex : MonoBehaviour {
         }
         Destroy(newExp.gameObject, 3f);
         Destroy(gameObject);
+    }
+
+    public Vector3 GAcceleration(Vector3 position, float mass, Rigidbody r)
+    {
+        Vector3 direction = position - r.position;
+
+        float gravityForce = gravitationalConstant * ((mass * r.mass) / direction.sqrMagnitude);
+        gravityForce /= r.mass;
+
+        return direction.normalized * gravityForce * Time.fixedDeltaTime;
     }
 }

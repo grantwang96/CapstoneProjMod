@@ -36,8 +36,8 @@ public class PlayerMovementV2 : Movement {
         if (falling) { yMove += Time.deltaTime * Physics.gravity.y; }
         // Debug.Log(charCon.isGrounded);
         Vector3 move = moveDir * Time.deltaTime * slownessSeverity * drunkMod; // Get the total movement
-        charCon.Move(move);
-        charCon.Move(Vector3.up * yMove * Time.deltaTime);
+        Move(move);
+        Move(Vector3.up * yMove * Time.deltaTime);
     }
 
     void calculateMove()
@@ -57,6 +57,12 @@ public class PlayerMovementV2 : Movement {
             }
             if (okayToMove) { rbody.MovePosition(rbody.position + move); } // if it's okay to move, then move
             */
+    }
+
+    public override void Move(Vector3 movement)
+    {
+        if (charCon == null || !charCon.enabled) { return; }
+        charCon.Move(movement);
     }
 
     public override void setup()
@@ -89,21 +95,20 @@ public class PlayerMovementV2 : Movement {
         Debug.Log("Oof");
         hamper++;
         yMove = force.y;
-        charCon.Move(force * Time.deltaTime);
+        Move(force * Time.deltaTime);
         falling = true;
         Vector3 flatForce = force;
         flatForce.y = 0;
         while (!charCon.isGrounded)
         {
-            charCon.Move(flatForce * Time.deltaTime);
-            // charCon.Move(Vector3.up * yMove * Time.deltaTime);
+            Move(flatForce * Time.deltaTime);
             yield return new WaitForEndOfFrame();
         }
         Vector3 start = flatForce;
         float prog = 0f;
         while (flatForce != Vector3.zero)
         {
-            charCon.Move(flatForce * Time.deltaTime);
+            Move(flatForce * Time.deltaTime);
             prog += Time.deltaTime;
             flatForce = Vector3.Lerp(start, Vector3.zero, prog * linearDrag);
             yield return new WaitForEndOfFrame();

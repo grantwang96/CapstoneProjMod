@@ -11,7 +11,7 @@ public class SceneTrans : MonoBehaviour {
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        GameObject.Find("Scorekeeper").GetComponent<ScoreKeeper>().resetScore();
+        // GameObject.Find("Scorekeeper").GetComponent<ScoreKeeper>().resetScore();
         SceneManager.LoadScene(sceneName);
     }
 }

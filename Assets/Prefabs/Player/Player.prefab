@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 92555446846605238}
   - component: {fileID: 124167096603899766}
   - component: {fileID: 81549319130316734}
-  m_Layer: 11
+  m_Layer: 12
   m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -40,7 +40,7 @@ GameObject:
   - component: {fileID: 224134748598218686}
   - component: {fileID: 222141278454999914}
   - component: {fileID: 114380108197025516}
-  m_Layer: 5
+  m_Layer: 12
   m_Name: Description
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61,7 +61,7 @@ GameObject:
   - component: {fileID: 114931254559795686}
   - component: {fileID: 114692267258563450}
   - component: {fileID: 143297429126818006}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
@@ -79,7 +79,7 @@ GameObject:
   - component: {fileID: 223770230120828344}
   - component: {fileID: 114635336351287856}
   - component: {fileID: 114930667024600580}
-  m_Layer: 5
+  m_Layer: 12
   m_Name: PlayerCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 224750365043806078}
   - component: {fileID: 222322139525259640}
   - component: {fileID: 114870816312453438}
-  m_Layer: 5
+  m_Layer: 12
   m_Name: AmmoFill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -113,7 +113,7 @@ GameObject:
   - component: {fileID: 224788437297115776}
   - component: {fileID: 222321706712564984}
   - component: {fileID: 114350403347433046}
-  m_Layer: 5
+  m_Layer: 12
   m_Name: HealthBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 222315299885068976}
   - component: {fileID: 114097956673255016}
   - component: {fileID: 114015646159278758}
-  m_Layer: 5
+  m_Layer: 12
   m_Name: SpellSlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -148,7 +148,7 @@ GameObject:
   - component: {fileID: 224886353531270270}
   - component: {fileID: 222459416764879966}
   - component: {fileID: 114767023933705348}
-  m_Layer: 5
+  m_Layer: 12
   m_Name: AmmoFillBackground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -166,7 +166,7 @@ GameObject:
   - component: {fileID: 114737038588732820}
   - component: {fileID: 114005348466664850}
   - component: {fileID: 65216479877441074}
-  m_Layer: 11
+  m_Layer: 12
   m_Name: PlayerHead
   m_TagString: Untagged
   m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
@@ -181,7 +181,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4618811555935658}
-  m_Layer: 11
+  m_Layer: 12
   m_Name: Gun
   m_TagString: Untagged
   m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
@@ -198,7 +198,7 @@ GameObject:
   - component: {fileID: 224955968000974160}
   - component: {fileID: 222438552751684840}
   - component: {fileID: 114342426140356896}
-  m_Layer: 5
+  m_Layer: 12
   m_Name: Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -215,7 +215,7 @@ GameObject:
   - component: {fileID: 224070222405028136}
   - component: {fileID: 222800287074750058}
   - component: {fileID: 114390895649114660}
-  m_Layer: 5
+  m_Layer: 12
   m_Name: HealthBarBackGround
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -232,7 +232,7 @@ GameObject:
   - component: {fileID: 224355365411201198}
   - component: {fileID: 222701094344901944}
   - component: {fileID: 114390754303615090}
-  m_Layer: 5
+  m_Layer: 12
   m_Name: Reticule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -378,7 +378,7 @@ BoxCollider:
   m_GameObject: {fileID: 1568639057011356}
   m_Material: {fileID: 0}
   m_IsTrigger: 1
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Size: {x: 0.5, y: 0.5, z: 2}
   m_Center: {x: 0, y: 0, z: 1}
@@ -411,6 +411,10 @@ MonoBehaviour:
   spellPickUpSpeed: 0.2
   body: {fileID: 4100886270380074}
   gun: {fileID: 4618811555935658}
+  interactLayers:
+    serializedVersion: 2
+    m_Bits: 1025
+  grabRange: 2
   SpellTitle: {fileID: 114342426140356896}
   SpellDescription: {fileID: 114380108197025516}
   ammoGaugeFill: {fileID: 114870816312453438}
@@ -450,15 +454,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.5882353}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: b8bf894ad1be17c4f96855690c987f05, type: 3}
-  m_Type: 0
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -486,12 +490,12 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 14
+    m_FontSize: 13
     m_FontStyle: 3
     m_BestFit: 0
-    m_MinSize: 10
+    m_MinSize: 1
     m_MaxSize: 40
-    m_Alignment: 0
+    m_Alignment: 3
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -689,9 +693,9 @@ MonoBehaviour:
   drunk: 0
   cameraShaking: 0
   mouseSensitivity: 150
-  shakeForce: 1
-  maxShakeForce: 2
-  shakeReduceFactor: 1
+  shakeForce: 0.4
+  maxShakeForce: 1
+  shakeReduceFactor: 0.5
   originPosition: {x: 0, y: 0, z: 0}
   affectedYTurn: {fileID: 4100886270380074}
   normalMove: 1
@@ -748,7 +752,7 @@ MonoBehaviour:
   m_FillMethod: 0
   m_FillAmount: 1
   m_FillClockwise: 1
-  m_FillOrigin: 0
+  m_FillOrigin: 1
 --- !u!114 &114930667024600580
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -936,7 +940,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 170, y: 65}
+  m_SizeDelta: {x: 200, y: 65}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224246466891886902
 RectTransform:
@@ -995,8 +999,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 700, y: -375}
-  m_SizeDelta: {x: 180, y: 120}
+  m_AnchoredPosition: {x: 675, y: -375}
+  m_SizeDelta: {x: 210, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224750365043806078
 RectTransform:
@@ -1014,7 +1018,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 165, y: 10}
+  m_SizeDelta: {x: 195, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224788437297115776
 RectTransform:
@@ -1051,7 +1055,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 170, y: 15}
+  m_SizeDelta: {x: 200, y: 15}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224955968000974160
 RectTransform:
@@ -1069,5 +1073,5 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 170, y: 20}
+  m_SizeDelta: {x: 200, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
