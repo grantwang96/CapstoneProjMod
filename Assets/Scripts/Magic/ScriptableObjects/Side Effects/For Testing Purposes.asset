@@ -15,3 +15,4 @@ MonoBehaviour:
   coolDown: 0
   title: StraightShot
   description: Not totally worthless
+  decoration: {fileID: 4501848763058522, guid: 3ac5769bfaf46e3419d8f906cf6148eb, type: 2}

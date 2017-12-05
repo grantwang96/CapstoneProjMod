@@ -22,6 +22,7 @@ public class GravityWellVortex : MonoBehaviour {
 
     float startTime;
     List<Transform> trapped = new List<Transform>();
+    List<trappedIdiot> idiots = new List<trappedIdiot>();
     public Transform explosionPrefab;
 
     public Transform myOwner;
@@ -66,6 +67,25 @@ public class GravityWellVortex : MonoBehaviour {
             emModule.rateOverTime = currEmission;
             effects.startSpeed = -range;
         }
+
+        if(idiots.Count > 0)
+        {
+            foreach (trappedIdiot idiot in idiots)
+            {
+                if (idiot == null) { continue; }
+                Damageable dam = idiot.loser.GetComponent<Damageable>();
+                if (dam) {
+                    dam.vortexGrab(transform, force);
+                    Vector3 moveDir = (idiot.tracker.position - idiot.loser.position).normalized;
+                    dam.myMovement.Move(idiot.tracker.position - idiot.loser.position);
+                }
+                else if (idiot.loser.GetComponent<Rigidbody>() != null) {
+                    idiot.loser.GetComponent<Rigidbody>().AddForce((transform.position - idiot.loser.position).normalized * force);
+                }
+            }
+        }
+
+        /*
         if(trapped.Count > 0)
         {
             foreach(Transform loser in trapped)
@@ -80,7 +100,14 @@ public class GravityWellVortex : MonoBehaviour {
                 }
             }
         }
+        */
 	}
+
+    class trappedIdiot
+    {
+        public Transform loser;
+        public Transform tracker;
+    }
 
     void OnTriggerEnter(Collider coll)
     {
@@ -88,27 +115,46 @@ public class GravityWellVortex : MonoBehaviour {
         Vector3 combinedForce = centerForce + coll.transform.TransformDirection(pointShift);
         if (coll.GetComponent<Damageable>() != null || coll.GetComponent<Rigidbody>() != null)
         {
-            coll.transform.parent = transform;
-            trapped.Add(coll.transform);
+            trappedIdiot newIdiot = new trappedIdiot();
+            newIdiot.loser = coll.transform;
+            GameObject newTracker = Instantiate(new GameObject(), newIdiot.loser.position, newIdiot.loser.rotation);
+            newTracker.transform.parent = transform;
+            newIdiot.tracker = newTracker.transform;
+            idiots.Add(newIdiot);
+            // coll.transform.parent = transform;
+            // trapped.Add(coll.transform);
         }
     }
     void OnTriggerExit(Collider coll)
     {
-        if (trapped.Contains(coll.transform))
+        for(int i = 0; i < idiots.Count; i++)
         {
-            coll.transform.parent = null;
-            trapped.Remove(coll.transform);
+            if(idiots[i].loser == coll.transform)
+            {
+                Transform tracker = idiots[i].tracker;
+                Destroy(tracker.gameObject);
+                idiots.Remove(idiots[i]);
+                break;
+            }
         }
     }
     void Die()
     {
+        /*
         foreach(Transform loser in trapped) {
-            if(loser != null)
-            {
+            if(loser != null) {
                 loser.parent = null;
             }
         }
-        trapped.Clear();
+        */
+        // trapped.Clear();
+        if(idiots.Count > 0) {
+            foreach (trappedIdiot idiot in idiots) {
+                Transform tracker = idiot.tracker;
+                Destroy(tracker.gameObject);
+            }
+            idiots.Clear();
+        }
         // Small explosion to send all objects up
         Collider[] colls = Physics.OverlapSphere(transform.position, 3f);
         Transform newExp = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
