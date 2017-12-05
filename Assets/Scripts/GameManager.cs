@@ -69,12 +69,16 @@ public class GameManager : MonoBehaviour { // will handle game events such as it
     void InitiateWinState()
     {
         Debug.Log("You Win!");
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
         SceneManager.LoadScene("Win");
     }
 
     public void InitiateLoseState()
     {
         Debug.Log("You Lose!");
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
         SceneManager.LoadScene("Lose");
     }
 }

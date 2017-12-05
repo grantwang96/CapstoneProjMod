@@ -40,6 +40,7 @@ public class PillarOfDoom : MonoBehaviour {
                 if(dam != null) {
                     Vector3 dir = (hit.collider.transform.position - transform.position).normalized;
                     dam.TakeDamage(myCaster, damage, dir, force);
+                    Debug.Log("Hit " + hit.collider.name);
                 }
             }
             yield return new WaitForEndOfFrame();

@@ -13,6 +13,7 @@ public class RicochetSideEffect : SpellSecondary {
     public override void MessUp(Transform user, Missile projectile)
     {
         projectile.bounceCount = additionalBounces;
+        projectile.friendlyOff = true;
         Collider coll = projectile.GetComponent<Collider>();
         coll.material = physMat;
     }

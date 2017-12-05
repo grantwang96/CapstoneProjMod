@@ -54,7 +54,7 @@ public class PlayerDamageable : Damageable {
 
     public override void Die()
     {
-        
+        GameManager.Instance.InitiateLoseState();
     }
 
     public override void Fly(float force, float duration)
@@ -204,6 +204,7 @@ public class PlayerDamageable : Damageable {
         transmutable = false;
         PlayerMagic myPlayMagic = myMovement.Head.GetComponent<PlayerMagic>();
         GameObject newBody = Instantiate(replacement, transform);
+        newBody.layer = gameObject.layer;
         newBody.transform.position = transform.position;
         newBody.transform.rotation = transform.rotation;
         Rigidbody newrbody = newBody.GetComponent<Rigidbody>();
@@ -215,6 +216,9 @@ public class PlayerDamageable : Damageable {
         newDam.parentHit = this;
         newDam.transmutable = false;
         Vector3 localOrigin = Camera.main.transform.localPosition;
+        Transform gun = transform.Find("Gun");
+        Vector3 gunOrigin = gun.localPosition;
+        gun.localPosition += Vector3.forward * .5f;
         CharacterController charCon = GetComponent<CharacterController>();
         float originHeight = charCon.height;
         charCon.height = newHeight;
@@ -224,6 +228,7 @@ public class PlayerDamageable : Damageable {
         Camera.main.transform.position -= transform.forward * 3f;
         Camera.main.transform.LookAt(myMovement.Head);
         yield return new WaitForSeconds(duration);
+        gun.localPosition = gunOrigin;
         charCon.detectCollisions = true;
         charCon.height = originHeight;
         myMovement.Head.position = transform.position + Vector3.up * charCon.height / 2;

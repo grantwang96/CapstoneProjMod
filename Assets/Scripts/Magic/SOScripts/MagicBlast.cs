@@ -13,14 +13,14 @@ public class MagicBlast : SpellPrimary { // Standard damaging magic attack
     }
 
     public override void OnHit(Missile proj, Collider coll) {
-        if(proj.friendlyOff && coll.transform == proj.originator) {
+        if(!proj.friendlyOff && coll.transform == proj.originator) {
             Debug.Log("Friendly Hit!");
             return;
         }
         Damageable collDam = coll.GetComponent<Damageable>();
         if (collDam) {
             Debug.Log(coll.transform.name + " was hit!");
-            Vector3 knockBack = proj.transform.forward;
+            Vector3 knockBack = (proj.transform.position - coll.transform.position).normalized;
             knockBack.y = upwardKnockup;
             knockBack = knockBack.normalized;
             collDam.TakeDamage(proj.originator, proj.power, knockBack, knockBackForce);

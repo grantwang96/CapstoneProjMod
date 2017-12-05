@@ -85,7 +85,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 0
-  radius: 0
+  radius: 2.5
   force: 10
   playerHead: {fileID: 0}
   shakeForce: 1
@@ -150,7 +150,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
-  randomSeed: -879483682
+  randomSeed: 683874245
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -3417,7 +3417,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
-  randomSeed: 1590852356
+  randomSeed: -1599821527
   InitialModule:
     serializedVersion: 3
     enabled: 1
