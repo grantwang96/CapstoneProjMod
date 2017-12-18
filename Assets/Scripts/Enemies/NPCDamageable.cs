@@ -7,6 +7,8 @@ public class NPCDamageable : Damageable {
     Coroutine seduction;
     Coroutine transmutation;
 
+    public CharacterController charCon; // humanoid type npc
+
     public MeshRenderer[] renderers; // All renderers on this gameobject
 
     public override void Seduce(float duration, GameObject target, SpellCaster owner)
@@ -21,15 +23,18 @@ public class NPCDamageable : Damageable {
 
     IEnumerator processSeduction(float duration, GameObject target, SpellCaster owner)
     {
-        myMovement.hamper++;
-        float startTime = Time.time;
-        NPCState previousState = myMovement.getCurrentState();
-        becomeSeduced(myMovement.myType);
-        while(Time.time - startTime < duration)
-        {
-            yield return new WaitForEndOfFrame();
+        myMovement.changeState(new NPCSeduced(), duration);
+
+        // add hearts or whatever
+
+        yield return new WaitForSeconds(duration); // wait for duration
+
+        // stop being seduced
+        if (myMovement.crush != null) {
+            myMovement.crush.removeFromSeductionList(this);
         }
-        myMovement.hamper--;
+        myMovement.attackTarget = myMovement.blueprint.getOriginTarget();
+        myMovement.changeState(new NPCIdle());
         seduction = null;
     }
 
@@ -53,7 +58,7 @@ public class NPCDamageable : Damageable {
         // Freeze Rigidbody
         // rbody.constraints = RigidbodyConstraints.FreezeAll;
 
-        foreach(MeshRenderer rend in renderers) // Turn off all mesh renderers
+        foreach(MeshRenderer rend in renderers) // Turn off all mesh renderers(SECTION NEEDS TO BE MODIFIED ONCE MODELS ARE IN)
         {
             rend.enabled = false;
         }
@@ -111,13 +116,21 @@ public class NPCDamageable : Damageable {
 
     IEnumerator Death()
     {
-        myMovement.hamper += 1000;
-        myMovement.anim.Play("Death");
-        GetComponent<Collider>().enabled = false;
-        yield return new WaitForEndOfFrame();
-        while (myMovement.anim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f) {
-            Debug.Log("I'm dying!");
+        if(replacedBody != null) { // if I'm transmuted, apply death effect to the replaced body
+            replacedBody.Die();
+        }
+        else {
+            // visualize the death
+
+            myMovement.hamper += 1000;
+            myMovement.anim.Play("Death");
+            GetComponent<Collider>().enabled = false;
             yield return new WaitForEndOfFrame();
+            while (myMovement.anim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+            {
+                Debug.Log("I'm dying!");
+                yield return new WaitForEndOfFrame();
+            }
         }
         base.Die();
     }

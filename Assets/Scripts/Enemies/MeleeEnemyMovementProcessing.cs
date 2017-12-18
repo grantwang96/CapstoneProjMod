@@ -23,6 +23,7 @@ public class NPCIdle : NPCState
     public override void Enter(Movement owner)
     {
         base.Enter(owner);
+        state = stateType.Normal;
         anim.SetInteger("Status", 0);
         myOwner.StartCoroutine(headTurn()); // Possibly temporary solution.
         Debug.Log("Entering Idling...");
@@ -44,7 +45,7 @@ public class NPCIdle : NPCState
         // Do some head turning
         base.Execute();
 
-        if (Time.time - startIdle >= idleTime) {
+        if (Time.time - startIdle >= duration) {
             myOwner.changeState(new NPCWander());
         }
     }
@@ -110,7 +111,6 @@ public class NPCIdle : NPCState
 
 public class NPCWander : NPCState
 {
-    float wanderTime;
     float startWander;
 
     bool emergencyTurning = false;
@@ -121,10 +121,11 @@ public class NPCWander : NPCState
 
     public override void Enter(Movement owner)
     {
+        state = stateType.Normal;
         myOwner = owner;
         myOwner.currSpeed = myOwner.baseSpeed;
         startWander = Time.time;
-        wanderTime = Random.Range(4f, 6f);
+        duration = Random.Range(4f, 6f);
         myOwner.currSpeed = myOwner.baseSpeed;
         anim = myOwner.anim;
         anim.SetInteger("Status", 1);
@@ -142,7 +143,7 @@ public class NPCWander : NPCState
             myOwner.Move(forward * myOwner.currSpeed * Time.deltaTime);
         }
 
-        if(Time.time - startWander >= wanderTime) { myOwner.changeState(new NPCIdle()); }
+        if(Time.time - startWander >= duration) { myOwner.changeState(new NPCIdle()); }
         if (myOwner.checkView())
         {
             // change state to aggro
@@ -234,6 +235,95 @@ public class NPCWander : NPCState
     }
 }
 
+public class NPCSeduced : NPCState
+{
+    Transform originAttackEnemy;
+
+    public override void Enter(Movement owner, float newDuration)
+    {
+        state = stateType.Seduced;
+        duration = newDuration;
+        myOwner = owner;
+        anim = myOwner.anim;
+        originAttackEnemy = owner.attackTarget;
+        myOwner.attackTarget = null;
+    }
+
+    public override void Enter(Movement owner)
+    {
+        base.Enter(owner);
+        state = stateType.Seduced;
+        myOwner = owner;
+        anim = myOwner.anim;
+        originAttackEnemy = owner.attackTarget;
+        myOwner.attackTarget = null;
+    }
+
+    public override void Execute()
+    {
+        // if attack target is no longer null, that means your crush is fighting something!
+        if (myOwner.attackTarget != null) { becomeAggro(myOwner.myType); } // go murder for senpai
+        else { approachCrush(); } // go follow senpai
+    }
+
+    public override void Exit()
+    {
+        myOwner.attackTarget = myOwner.blueprint.getOriginTarget();
+        // myOwner.crush.removeFromSeductionList(myOwner.GetComponent<Damageable>());
+        myOwner.crush = null;
+        Debug.Log(myOwner == null);
+        myOwner.changeState(new MeleeEnemyScan());
+    }
+
+    void approachCrush()
+    {
+        // Make sure we have a crush.
+        if(myOwner.crush == null) { Exit(); }
+
+        // Calculate rotation
+        Vector3 crushPos = myOwner.crush.returnBody().position; // your crush's location
+        crushPos.y = 0; // for calculating the forward
+        Vector3 myPos = myOwner.transform.position; // my position
+        myPos.y = 0; // for calculating the forward
+        Quaternion forward = Quaternion.LookRotation(crushPos - myPos);
+        myOwner.transform.rotation = Quaternion.Lerp(myOwner.transform.rotation, forward, 5f * Time.deltaTime);
+
+        // if I am too far from crush, move towards crush
+        float dist = Vector3.Distance(myOwner.crush.returnBody().position, myOwner.transform.position);
+        if(dist > 4f) {
+            myOwner.Move(myOwner.transform.forward * Time.deltaTime * myOwner.currSpeed);
+            // set an animation bool to "bouncy walking" or something
+        }
+        else {
+            // set an animation bool to "bounce idling" or something
+        }
+    }
+
+    void attackEnemy()
+    {
+        myOwner.changeState(new MeleeEnemyScan());
+    }
+
+    void becomeAggro(EnemyData.CombatType combatType)
+    {
+        switch (combatType)
+        {
+            case EnemyData.CombatType.Melee:
+                myOwner.changeState(new MeleeEnemyChase());
+                break;
+            case EnemyData.CombatType.SpellCaster:
+                myOwner.changeState(new SpellCasterEnemyAggro());
+                break;
+            case EnemyData.CombatType.Mixed:
+                break;
+            case EnemyData.CombatType.Ranged:
+                break;
+            case EnemyData.CombatType.Support:
+                break;
+        }
+    }
+}
+
 public class MeleeEnemyChase : NPCState
 {
     Transform attackTarget;
@@ -241,6 +331,7 @@ public class MeleeEnemyChase : NPCState
 
     public override void Enter(Movement owner)
     {
+        state = stateType.Aggro;
         myOwner = owner;
         myOwner.currSpeed = myOwner.maxSpeed;
         myOwner.Head.forward = myOwner.transform.forward;
@@ -321,6 +412,7 @@ public class MeleeEnemyScan : NPCState
     public override void Enter(Movement owner)
     {
         base.Enter(owner);
+        state = stateType.Aggro;
         anim.SetInteger("Status", 1);
         anim.Play("Scan");
         Debug.Log("Entering Scan...");

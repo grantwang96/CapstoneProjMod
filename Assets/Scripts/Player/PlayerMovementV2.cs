@@ -17,6 +17,8 @@ public class PlayerMovementV2 : Movement {
     public CharacterController charCon;
     Coroutine movementTakeover;
 
+    // public PlayerMagic myPlayerMagic;
+
 	// Use this for initialization
 	public override void Start () {
         // setup();
@@ -127,6 +129,14 @@ public class PlayerMovementV2 : Movement {
     void OnControllerColliderHit(ControllerColliderHit coll)
     {
         string tag = coll.collider.tag;
+        if (tag.Contains("Book"))
+        {
+            SpellBook touchedBook = coll.collider.GetComponent<SpellBook>();
+            if (touchedBook) {
+                Debug.Log("I touched book!");
+                // myPlayerMagic.pickUpSpell(touchedBook);
+            }
+        }
         if (tag.Contains("Ground"))
         {
             if (Vector3.Distance(coll.point, Head.position) < 0.1f) // If collided with head

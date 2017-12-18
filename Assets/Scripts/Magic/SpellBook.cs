@@ -13,8 +13,9 @@ public class SpellBook : MonoBehaviour, Interactable {
     public int getAmmo() { return ammo; }
     public void useAmmo() { ammo--; }
     public SpellCaster owner;
-    [SerializeField] bool _dead;
+    [SerializeField] bool _dead = false;
     public bool dead { get { return _dead; } set { _dead = value; } }
+    bool dying = false;
 
     public string spellTitle;
     public string spellDescription;
@@ -90,6 +91,20 @@ public class SpellBook : MonoBehaviour, Interactable {
         spellCaster.pickUpSpell(this);
     }
 
+    public IEnumerator Drop(Vector3 newLoc)
+    {
+        _dead = true;
+        Vector3 startPos = transform.position;
+        float prog = 0f;
+        while(transform.position != newLoc) {
+            if (dying) { yield break; }
+            transform.position = Vector3.Lerp(startPos, newLoc, prog);
+            prog += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+        _dead = false;
+    }
+
     public void Deactivate()
     {
         foreach(MeshRenderer mr in allMeshes) {
@@ -111,7 +126,7 @@ public class SpellBook : MonoBehaviour, Interactable {
     public void Die()
     {
         // Do Die Effect
-        if (_dead) { return; } // don't do this again if you're dead
+        if (_dead || dying) { return; } // don't do this again if you're dead
         if (owner != null) { owner.dropSpell(this, owner.returnBody().position); }
         StartCoroutine(processDie());
     }
@@ -119,6 +134,7 @@ public class SpellBook : MonoBehaviour, Interactable {
     IEnumerator processDie()
     {
         _dead = true;
+        dying = true;
         owner = null;
         float startTime = Time.time;
         float dieTime = 2f;
@@ -134,5 +150,14 @@ public class SpellBook : MonoBehaviour, Interactable {
         newDieEffect.transform.parent = null;
         Destroy(newDieEffect.gameObject, 1f);
         Destroy(gameObject);
+    }
+
+    void OnTriggerEnter(Collider coll)
+    {
+        /*
+        if(coll.tag == "Player" && !dying) {
+            Interact(coll.GetComponent<SpellCaster>());
+        }
+        */
     }
 }

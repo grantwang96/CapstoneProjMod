@@ -41,6 +41,7 @@ public class PlayerDamageable : Damageable {
         if (hurt) { return; }
         // Visual hurt effects
         base.TakeDamage(attacker, hpLost, dir, force);
+        PlayerMagic.instance.invokeChangeFollowers(attacker.GetComponent<Damageable>());
         Debug.Log("Player HP: " + health);
         StartCoroutine(hurtFrames());
     }
@@ -57,16 +58,16 @@ public class PlayerDamageable : Damageable {
         GameManager.Instance.InitiateLoseState();
     }
 
-    public override void Fly(float force, float duration)
+    /*public override void Fly(float force, float duration)
     {
         if(flight != null) {
             StopCoroutine(flight);
             myMovement.hamper--;
         }
         flight = StartCoroutine(processFlying(force, duration));
-    }
+    }*/
 
-    IEnumerator processFlying(float force, float duration)
+    /*IEnumerator processFlying(float force, float duration)
     {
         Debug.Log("Duration is: " + duration);
         float startTime = Time.time;
@@ -112,15 +113,15 @@ public class PlayerDamageable : Damageable {
         Destroy(newStatusEffect.gameObject);
         flight = null;
         myOwnerMove.hamper--;
-    }
+    }*/
 
-    public override void Drunk(float duration)
+    /*public override void Drunk(float duration)
     {
         if(drunkness != null) { StopCoroutine(drunkness); }
         drunkness = StartCoroutine(processDrunk(duration));
-    }
+    }*/
 
-    IEnumerator processDrunk(float duration)
+    /*IEnumerator processDrunk(float duration)
     {
         PlayerMovementV2 myMove = GetComponent<PlayerMovementV2>();
         float startTime = Time.time;
@@ -153,7 +154,7 @@ public class PlayerDamageable : Damageable {
         HeadMove.drunk = false;
         Destroy(newStatusEffect.gameObject);
         drunkness = null;
-    }
+    }*/
 
     public override void Slow(float duration, float severity)
     {
@@ -201,51 +202,75 @@ public class PlayerDamageable : Damageable {
 
     public override IEnumerator processTransmutation(float duration, GameObject replacement)
     {
-        transmutable = false;
-        PlayerMagic myPlayMagic = myMovement.Head.GetComponent<PlayerMagic>();
-        GameObject newBody = Instantiate(replacement, transform);
+        transmutable = false; // set transmutable to false
+        PlayerMagic myPlayMagic = GetComponent<PlayerMagic>(); // get magical abilities
+        GameObject newBody = Instantiate(replacement, transform); // create new body
+
+        // prime new body to replace player
         newBody.layer = gameObject.layer;
         newBody.transform.position = transform.position;
         newBody.transform.rotation = transform.rotation;
         Rigidbody newrbody = newBody.GetComponent<Rigidbody>();
         Damageable newDam = newBody.GetComponent<Damageable>();
-        Collider coll = newBody.GetComponent<Collider>();
-        float newHeight = coll.bounds.extents.y * 2;
+        Collider newBodyColl = newBody.GetComponent<Collider>();
+        
+        //shut off unnecessary components of newbody
         newrbody.isKinematic = true;
         newrbody.useGravity = false;
         newDam.parentHit = this;
         newDam.transmutable = false;
+
+        // shift gun(to accomodate for larger bodies)
         Vector3 localOrigin = Camera.main.transform.localPosition;
         Transform gun = transform.Find("Gun");
         Vector3 gunOrigin = gun.localPosition;
         gun.localPosition += Vector3.forward * .5f;
+
+
+        // change player's collider to become similar to newbody's
+        float newHeight = newBodyColl.bounds.extents.y * 2;
+        float newRadius = (newBodyColl.bounds.extents.x + newBodyColl.bounds.extents.z) / 2;
+        newBodyColl.enabled = false;
         CharacterController charCon = GetComponent<CharacterController>();
-        float originHeight = charCon.height;
+        float originHeight = charCon.height; // save for later
+        float originRadius = charCon.radius; // save for later
         charCon.height = newHeight;
-        charCon.detectCollisions = false;
+        charCon.radius = newRadius;
+        // charCon.detectCollisions = true;
         myMovement.Head.position = transform.position + Vector3.up * charCon.height / 2;
         myMovement.Head.forward = transform.forward;
         Camera.main.transform.position -= transform.forward * 3f;
         Camera.main.transform.LookAt(myMovement.Head);
+        myPlayMagic.enabled = false; // DO NOT ALLOW FOR SPELL COMBAT
+
+        // StatusBarHandler.instance.applyStatus("transmute", duration);
         yield return new WaitForSeconds(duration);
+
+        // reset head components
         gun.localPosition = gunOrigin;
         charCon.detectCollisions = true;
         charCon.height = originHeight;
+        charCon.radius = originRadius;
         myMovement.Head.position = transform.position + Vector3.up * charCon.height / 2;
         Camera.main.transform.localPosition = localOrigin;
         Camera.main.transform.rotation = myMovement.Head.rotation;
+
+        // re-enable spell combat and transmutable
         myPlayMagic.enabled = true;
         setTransmutable(true);
+
+        // get rid of newbody
         Destroy(newBody);
     }
 
     public override void Seduce(float duration, GameObject target, SpellCaster owner)
     {
-        base.Seduce(duration, target, owner);
+        
     }
 
     public override void knockBack(Vector3 dir, float force)
     {
+        if(parentHit != null) { parentHit.knockBack(dir, force); }
         myMovement.knockBack(dir, force);
     }
 

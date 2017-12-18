@@ -18,17 +18,22 @@ public class SpellCasterEnemy : EnemyData {
         Damageable ownerDam = owner.GetComponent<Damageable>();
         ownerDam.max_health = health;
         owner.damage = damage;
-        owner.attackTarget = GameObject.FindGameObjectWithTag("Player").transform;
+        owner.attackTarget = GameObject.FindGameObjectWithTag(attackTargetTag).transform;
 
         // Add spellbook to enemy's inventory
-        if(SpellManager.Instance != null) { // if spell manager is running
-            SpellPrimary primary = possibleSpellPrimaries[Random.Range(0, possibleSpellPrimaries.Length)];
-            SpellSecondary secondary = possibleSpellSecondaries[Random.Range(0, possibleSpellSecondaries.Length)];
-            SpellBook newSpellBook = SpellManager.Instance.GenerateSpell(primary, secondary, owner.transform.position);
-
+        if (SpellManager.Instance != null) { // if spell manager is running
             SpellCaster spellCaster = owner.GetComponent<SpellCaster>();
-            newSpellBook.Interact(spellCaster);
-            newSpellBook.SetupSpell();
+
+            if (!spellCaster.returnSpell()) {
+
+
+                SpellPrimary primary = possibleSpellPrimaries[Random.Range(0, possibleSpellPrimaries.Length)];
+                SpellSecondary secondary = possibleSpellSecondaries[Random.Range(0, possibleSpellSecondaries.Length)];
+                SpellBook newSpellBook = SpellManager.Instance.GenerateSpell(primary, secondary, owner.transform.position); // Create a new spellbook
+
+                newSpellBook.Interact(spellCaster);
+                newSpellBook.SetupSpell();
+            }
         }
 
         /*

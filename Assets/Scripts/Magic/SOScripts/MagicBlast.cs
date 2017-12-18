@@ -19,11 +19,12 @@ public class MagicBlast : SpellPrimary { // Standard damaging magic attack
         }
         Damageable collDam = coll.GetComponent<Damageable>();
         if (collDam) {
-            Debug.Log(coll.transform.name + " was hit!");
             Vector3 knockBack = (proj.transform.position - coll.transform.position).normalized;
             knockBack.y = upwardKnockup;
             knockBack = knockBack.normalized;
             collDam.TakeDamage(proj.originator, proj.power, knockBack, knockBackForce);
+            SpellCaster originator = proj.originator.GetComponent<SpellCaster>();
+            originator.invokeChangeFollowers(collDam);
             // Instantiate special effect
             proj.Die();
             return;

@@ -4,29 +4,34 @@ using UnityEngine;
 
 public abstract class Damageable : MonoBehaviour
 {
+    // health variables
     public int max_health;
     int _health;
     public int health {
         get { return _health; }
         set { _health = value; } }
 
-    public bool transmutable = true;
+    public bool transmutable = true; // if the object can be transformed
 
+    // hurt/iframes variables
     public bool hurt = false;
     public float hurtTime;
     public bool dead;
 
-    public Rigidbody rbody;
-    public CharacterController charCon;
+    // rbody or character controller
+    // public Rigidbody rbody;
+    // public CharacterController charCon;
     public MeshRenderer myRend;
 
     public Movement myMovement;
     public Damageable parentHit;
 
+    public Damageable replacedBody; // for transmutations
+
     public virtual void Start()
     {
         // rbody = GetComponent<Rigidbody>();
-        charCon = GetComponent<CharacterController>();
+        // charCon = GetComponent<CharacterController>();
         myRend = GetComponent<MeshRenderer>();
         myMovement = GetComponent<Movement>();
         health = max_health;
@@ -34,39 +39,50 @@ public abstract class Damageable : MonoBehaviour
 
     public virtual void Update()
     {
-        
+        if(dead) { // if we're dead
+            StopAllCoroutines();
+            Die();
+        }
     }
 
     public virtual void TakeDamage(Transform attacker, int hpLost, Vector3 dir, float force)
     {
+        // if this is a result of transmutation
         if(parentHit != null && parentHit != this) { // apply damage to base object (i.e. if this were a transmutation). DO NOT MAKE PARENT HIT THIS!!! STACKOVERFLOWS ARE A BITCH
             parentHit.TakeDamage(attacker, hpLost, dir, force);
             return;
         }
+
+        // calculate damage dealt
         Debug.Log(transform.name + " takes " + hpLost + " points of damage!");
         health -= hpLost;
-        if(health <= 0) { dead = true; }
-        if(dead)
-        {
+        if(health <= 0) { dead = true; } // if this damage kills you
+
+        knockBack(dir, force);
+
+        // if this damage kills you
+        /*
+        if(dead) {
             StopAllCoroutines();
             Die();
             return;
         }
-        else
-        {
+        else {
             knockBack(dir, force);
-        }
+        }*/
     }
 
     public virtual void Heal(int recover)
     {
+        if(parentHit != null) { parentHit.Heal(recover); }
         health += recover;
         if(health > max_health) { health = max_health; }
     }
 
     public virtual void knockBack(Vector3 dir, float force)
     {
-        // rbody.AddForce(dir * force, ForceMode.Impulse);
+        // rbody.AddForce(dir * force, ForceMode.Impulse)
+        if(myMovement == null) { return; }
         myMovement.knockBack(dir, force);
     }
 
@@ -101,7 +117,7 @@ public abstract class Damageable : MonoBehaviour
     public virtual IEnumerator processTransmutation(float duration, GameObject replacement)
     {
         myMovement.hamper++;
-        rbody.constraints = RigidbodyConstraints.FreezeAll;
+        // rbody.constraints = RigidbodyConstraints.FreezeAll;
         // myRend.enabled = false;
         Collider myColl = GetComponent<Collider>();
         myColl.enabled = false;
@@ -113,16 +129,18 @@ public abstract class Damageable : MonoBehaviour
         GameObject myReplace = Instantiate(replacement, transform.position, transform.rotation);
         Rigidbody replaceRigidBody = myReplace.GetComponent<Rigidbody>();
         replaceRigidBody.AddExplosionForce(3f, transform.position, 1f);
-        myReplace.GetComponent<Damageable>().setTransmutable(false);
+        replacedBody = myReplace.GetComponent<Damageable>();
+        replacedBody.setTransmutable(false);
         yield return new WaitForSeconds(duration);
         transform.position = myReplace.transform.position;
         Destroy(myReplace); // Destroy my replacement
-        rbody.constraints = RigidbodyConstraints.None;
+        // rbody.constraints = RigidbodyConstraints.None;
         // myRend.enabled = true;
         myColl.enabled = true;
         if (allRends.Length > 0) {
             foreach (Renderer rend in allRends) { rend.enabled = true; }
         }
+        replacedBody = null;
         myMovement.hamper--;
     }
 
@@ -133,22 +151,24 @@ public abstract class Damageable : MonoBehaviour
 
     public virtual void Seduce(float duration, GameObject target, SpellCaster owner)
     {
+        if(myMovement.crush != null) { // if already seduced
+            myMovement.crush.removeFromSeductionList(this); // remove from the seduction list
+        }
+        myMovement.crush = owner;
         owner.addToSeductionList(this);
-        myMovement.attackTarget = target.transform;
     }
 
-    public virtual void setCurrentTarget(List<Damageable> targets, SpellCaster owner)
+    public virtual void setCurrentTarget(Damageable target, SpellCaster owner)
     {
-        if(targets.Count != 0) {
-            myMovement.attackTarget = targets[Random.Range(0, targets.Count)].transform;
-        }
+        if(target == this) { return; }
+        myMovement.attackTarget = target.transform;
     }
 
     public virtual void vortexGrab(Transform center, float force)
     {
-        Vector3 dir = (center.position - transform.position).normalized;
-        rbody.AddForce(dir * force);
-        transform.forward = new Vector3(-dir.x, 0, -dir.z);
+        // Vector3 dir = (center.position - transform.position).normalized;
+        // rbody.AddForce(dir * force);
+        // transform.forward = new Vector3(-dir.x, 0, -dir.z);
     }
 
     public virtual void Die()
@@ -184,7 +204,8 @@ public abstract class Movement : MonoBehaviour
     public LayerMask scanLayer;
     public LayerMask obstacleLayer;
 
-    public Transform attackTarget;
+    public Transform attackTarget; // who to target
+    public SpellCaster crush; // if seduced
 
     public virtual void Start()
     {
@@ -259,6 +280,12 @@ public abstract class Movement : MonoBehaviour
         currState.Enter(this);
     }
 
+    public virtual void changeState(NPCState newState, float newDuration)
+    {
+        currState = newState;
+        currState.Enter(this, newDuration);
+    }
+
     public virtual IEnumerator attack(Vector3 target)
     {
         hamper++;
@@ -288,6 +315,13 @@ public abstract class Movement : MonoBehaviour
 
 public abstract class NPCState
 {
+    public enum stateType {
+        Normal, Aggro, Seduced
+    }
+
+    public stateType state;
+
+    public float duration;
     public float idleTime;
     public float startIdle;
     public float sightRange;
@@ -312,6 +346,13 @@ public abstract class NPCState
         turnDurationTime = Random.Range(1f, 2f);
         anim = myOwner.anim;
         maxAngleChange = 60f;
+    }
+
+    public virtual void Enter(Movement owner, float newDuration)
+    {
+        myOwner = owner;
+        duration = newDuration;
+        anim = myOwner.anim;
     }
 
     public virtual void Execute()

@@ -76,8 +76,10 @@ public class GravityWellVortex : MonoBehaviour {
                 Damageable dam = idiot.loser.GetComponent<Damageable>();
                 if (dam) {
                     dam.vortexGrab(transform, force);
-                    Vector3 moveDir = (idiot.tracker.position - idiot.loser.position).normalized;
-                    dam.myMovement.Move(idiot.tracker.position - idiot.loser.position);
+                    if(idiot.tracker != null) {
+                        Vector3 moveDir = (idiot.tracker.position - idiot.loser.position).normalized;
+                        dam.myMovement.Move(idiot.tracker.position - idiot.loser.position);
+                    }
                 }
                 else if (idiot.loser.GetComponent<Rigidbody>() != null) {
                     idiot.loser.GetComponent<Rigidbody>().AddForce((transform.position - idiot.loser.position).normalized * force);

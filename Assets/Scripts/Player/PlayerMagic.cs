@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class PlayerMagic : MonoBehaviour, SpellCaster {
 
+    public static PlayerMagic instance;
     List<SpellBook> spellsInventory = new List<SpellBook>();
     public int maxSpells;
     int currentHeld;
@@ -12,12 +13,19 @@ public class PlayerMagic : MonoBehaviour, SpellCaster {
     public float spellPickUpSpeed;
 
     public Transform body;
+    public Transform Head;
     [SerializeField] Transform gun;
+
+    public delegate void seductionHit(Damageable target, SpellCaster owner);
+    public event seductionHit changeFollowerTarget;
 
     bool canFire;
     public LayerMask interactLayers;
     public float grabRange;
     #region UIStuff
+
+    [SerializeField] Transform spellSlots;
+
     [SerializeField] Text SpellTitle;
     [SerializeField] Text SpellDescription;
     [SerializeField] Image ammoGaugeFill;
@@ -27,6 +35,7 @@ public class PlayerMagic : MonoBehaviour, SpellCaster {
 
     // Use this for initialization
     void Start () {
+        instance = this;
         currentHeld = 0;
         canFire = true;
         updateCurrentHeld();
@@ -35,6 +44,7 @@ public class PlayerMagic : MonoBehaviour, SpellCaster {
 	// Update is called once per frame
 	void Update () {
         processScrolling(); // if the player scrolls
+        processNumKeys(); // if the player hits the keys
         if (Input.GetButtonDown("Fire1") && spellsInventory.Count != 0) { // make sure player hits shoot button and has something to shoot
             fireSpell();
         }
@@ -57,30 +67,60 @@ public class PlayerMagic : MonoBehaviour, SpellCaster {
         }
     }
 
+    void processNumKeys()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1)) {
+            currentHeld = 0;
+            updateCurrentHeld();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2) && spellsInventory.Count > 1) {
+            currentHeld = 1;
+            updateCurrentHeld();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3) && spellsInventory.Count > 2) {
+            currentHeld = 2;
+            updateCurrentHeld();
+        }
+    }
+
     void processScrolling()
     {
         float mouse = Input.GetAxis("Mouse ScrollWheel"); // record input from mouse scrollwheel
-        if(mouse > 0) { currentHeld++; }
-        else if(mouse < 0) { currentHeld--; }
-        updateCurrentHeld();
+        if(mouse != 0)
+        {
+            if (mouse > 0) { currentHeld--; }
+            else if (mouse < 0) { currentHeld++; }
+            updateCurrentHeld();
+        }
     }
 
     void updateCurrentHeld() // make sure currentheld is within inventory count
     {
-        if(spellsInventory.Count == 0) { // shut off the ammo gauge
+        if(spellsInventory.Count == 0) { // shut everything off
             currentHeld = 0;
-            ammoGaugeBackground.gameObject.SetActive(false);
-            SpellTitle.text = "None Held";
-            SpellDescription.text = "";
+
+            foreach(Transform child in spellSlots) {
+                child.Find("Title").GetComponent<Text>().text = "Empty Spell Slot";
+                spellslot data = child.GetComponent<spellslot>();
+                data.Deselect();
+            }
         }
         else { // update the ammo gauge and makesure current held is within inventory count
             if (currentHeld >= spellsInventory.Count) { currentHeld = 0; }
             else if (currentHeld < 0) { currentHeld = spellsInventory.Count - 1; }
-            ammoGaugeBackground.gameObject.SetActive(true);
-            ammoGaugeFill.fillAmount = (float)spellsInventory[currentHeld].getAmmo() / spellsInventory[currentHeld].getMaxAmmo();
-            ammoGaugeFill.color = spellsInventory[currentHeld].baseColor;
-            SpellTitle.text = spellsInventory[currentHeld].spellTitle;
-            SpellDescription.text = spellsInventory[currentHeld].spellDescription;
+
+            foreach(Transform child in spellSlots)
+            {
+                spellslot data = child.GetComponent<spellslot>();
+                if (child.GetSiblingIndex() == currentHeld) {
+                    SpellBook currSpell = spellsInventory[currentHeld];
+                    data.Select(currSpell.spellTitle, currSpell.spellDescription, currSpell.getAmmo(), currSpell.getMaxAmmo(), currSpell.baseColor);
+                }
+                else {
+                    if(child.GetSiblingIndex() >= spellsInventory.Count) { data.setTitle("None Held"); }
+                    data.Deselect();
+                }
+            }
         }
     }
 
@@ -97,14 +137,31 @@ public class PlayerMagic : MonoBehaviour, SpellCaster {
 
     public void addToSeductionList(Damageable loser)
     {
-        
+        changeFollowerTarget += loser.setCurrentTarget;
+    }
+
+    public void removeFromSeductionList(Damageable loser)
+    {
+        changeFollowerTarget -= loser.setCurrentTarget;
+    }
+
+    public void invokeChangeFollowers(Damageable target)
+    {
+        if(changeFollowerTarget != null) {
+            changeFollowerTarget(target, this);
+        }
     }
 
     public void fireSpell() // Shoot the spell
     {
         if (!canFire) { return; } // If cooling down
-        spellsInventory[currentHeld].primaryEffect.ActivateSpell(this, spellsInventory[currentHeld].secondaryEffect, transform.forward); // activate currently held spellbook
+        spellsInventory[currentHeld].primaryEffect.ActivateSpell(this, spellsInventory[currentHeld].secondaryEffect, Head.forward); // activate currently held spellbook
         spellsInventory[currentHeld].useAmmo(); // the player uses ammo in a spellbook
+
+        spellslot data = spellSlots.GetChild(currentHeld).GetComponent<spellslot>();
+        data.modifyDetails(spellsInventory[currentHeld].spellTitle, spellsInventory[currentHeld].spellDescription,
+            spellsInventory[currentHeld].getAmmo(), spellsInventory[currentHeld].getMaxAmmo(), spellsInventory[currentHeld].baseColor);
+        // data.ammoBarInner.fillAmount = (float)spellsInventory[currentHeld].getAmmo() / spellsInventory[currentHeld].getMaxAmmo();
 
         // Calculate and initiate cooldown
         float coolDown = spellsInventory[currentHeld].primaryEffect.coolDown;
@@ -116,11 +173,11 @@ public class PlayerMagic : MonoBehaviour, SpellCaster {
 
     public Transform returnBody() { return body; }
 
-    public Transform returnHead() { return transform; }
+    public Transform returnHead() { return Head; }
 
     public void pickUpSpell(SpellBook newSpell)
     {
-        Debug.Log("Grabbed Spell");
+        // Debug.Log("Grabbed Spell");
         if(spellsInventory.Count == maxSpells) { // if the player's inventory is full
             SpellBook lostSpell = spellsInventory[currentHeld];
             spellsInventory[currentHeld] = newSpell;
@@ -131,7 +188,10 @@ public class PlayerMagic : MonoBehaviour, SpellCaster {
             currentHeld = spellsInventory.Count - 1;
         }
         updateCurrentHeld();
-        StartCoroutine(pickUpProcess(newSpell)); // visualize pick up
+        newSpell.Deactivate();
+        newSpell.transform.localPosition = Vector3.zero;
+        newSpell.transform.localRotation = Quaternion.identity;
+        // StartCoroutine(pickUpProcess(newSpell)); // visualize pick up
     }
 
     IEnumerator pickUpProcess(SpellBook newSpell) // pick up the spellbook
@@ -157,7 +217,14 @@ public class PlayerMagic : MonoBehaviour, SpellCaster {
         if (spellsInventory.Contains(dropSpell)) { spellsInventory.Remove(dropSpell); }
 
         // update current held
-        updateCurrentHeld();
+        // updateCurrentHeld();
+        dropSpell.Activate();
+        dropSpell.transform.parent = null;
+
+        dropSpell.transform.position = transform.position;
+        // dropSpell.Drop(originPos);
+        // dropSpell.Die();
+
         // visualize dropping book
         StartCoroutine(dropSpellProcess(dropSpell, originPos));
     }
@@ -173,6 +240,13 @@ public class PlayerMagic : MonoBehaviour, SpellCaster {
             dropSpell.transform.position = Vector3.Lerp(dropSpell.transform.position, originPos, Time.deltaTime / spellPickUpSpeed); // shift book to position
             yield return new WaitForEndOfFrame();
         }
+        updateCurrentHeld();
+    }
+
+    public SpellBook returnSpell()
+    {
+        if(spellsInventory.Count == 0) { return null; }
+        return spellsInventory[currentHeld];
     }
 
     public IEnumerator fireCoolDown(float duration) // process cool down

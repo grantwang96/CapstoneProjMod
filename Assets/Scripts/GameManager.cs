@@ -47,7 +47,6 @@ public class GameManager : MonoBehaviour { // will handle game events such as it
             Collider[] colls = Physics.OverlapSphere(spawn.position, .5f, spellBooksLayer);
             if(colls.Length == 0) {
                 SpellBook newSpell = SpellManager.Instance.GenerateSpell(spawn.position);
-                Debug.Log("Spawned " + newSpell.spellTitle + " at " + spawn.position);
             }
             i++;
             if(i >= spellSpawns.Length) { i = 0; }

@@ -242,6 +242,9 @@ public class SpellCasterEnemyAggro : NPCState
             yield return new WaitForSeconds(shotIntervalTime);
             myOwner.Head.rotation = Quaternion.LookRotation(lastKnownLocation - myOwner.transform.position);
             RaycastHit rayHit;
+
+            if(myOwner.attackTarget == null) { break; }
+
             if(Physics.Raycast(myOwner.transform.position, myOwner.attackTarget.position - myOwner.transform.position, out rayHit, myOwner.sightRange)) {
                 myOwner.StartCoroutine(myOwner.attack(lastKnownLocation));
             }

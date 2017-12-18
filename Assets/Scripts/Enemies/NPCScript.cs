@@ -89,6 +89,11 @@ public class NPCScript : Movement {
         base.changeState(newState);
     }
 
+    public override void changeState(NPCState newState, float newDuration)
+    {
+        base.changeState(newState, newDuration);
+    }
+
     public override IEnumerator attack(Vector3 target)
     {
         if (attacking) { yield return null; }

@@ -13,7 +13,7 @@ public class BasicMeleeEnemy : EnemyData {
         Damageable ownerDam = owner.GetComponent<Damageable>();
         ownerDam.max_health = health;
         owner.damage = damage;
-        owner.attackTarget = GameObject.FindGameObjectWithTag("Player").transform;
+        owner.attackTarget = GameObject.FindGameObjectWithTag(attackTargetTag).transform;
         base.setup(owner);
     }
 }

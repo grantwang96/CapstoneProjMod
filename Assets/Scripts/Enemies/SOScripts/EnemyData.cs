@@ -12,6 +12,8 @@ public class EnemyData : ScriptableObject {
     [Range(0, 100)] public float sightRange;
     [Range(0, 90)] public float sightAngle;
 
+    public string attackTargetTag;
+
     public int damage;
 
     public CombatType myType;
@@ -36,5 +38,9 @@ public class EnemyData : ScriptableObject {
         owner.sightRange = sightRange;
         owner.sightAngle = sightAngle;
         owner.myType = myType;
+    }
+
+    public virtual Transform getOriginTarget() {
+        return GameObject.FindGameObjectWithTag(attackTargetTag).transform;
     }
 }

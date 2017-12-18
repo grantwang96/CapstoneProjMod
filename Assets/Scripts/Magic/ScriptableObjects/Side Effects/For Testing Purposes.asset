@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cf5b6016c122c5429da05b31af9c4cf, type: 3}
   m_Name: For Testing Purposes
   m_EditorClassIdentifier: 
-  ammo: 10000
+  ammo: 1000
   coolDown: 0
   title: StraightShot
   description: Not totally worthless

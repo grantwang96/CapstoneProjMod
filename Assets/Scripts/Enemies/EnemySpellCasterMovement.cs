@@ -17,6 +17,9 @@ public class EnemySpellCasterMovement : Movement, SpellCaster
     [SerializeField] float yMove = Physics.gravity.y;
     bool falling = true;
 
+    public delegate void seductionHit(Damageable target, SpellCaster owner);
+    public event seductionHit changeFollowerTarget;
+
     #endregion
 
     #region Movement Implementations
@@ -147,6 +150,11 @@ public class EnemySpellCasterMovement : Movement, SpellCaster
         }
     }
 
+    public void invokeChangeFollowers(Damageable target)
+    {
+
+    }
+
     public Transform returnGun() { return gun; }
 
     public Transform returnBody() { return body; }
@@ -166,6 +174,12 @@ public class EnemySpellCasterMovement : Movement, SpellCaster
     public void removeFromSeductionList(Damageable loser)
     {
         
+    }
+
+    public SpellBook returnSpell()
+    {
+        if(heldSpell == null) { return null; }
+        return heldSpell;
     }
 
     public void fireSpell()

@@ -18,7 +18,14 @@ public class Movable : Damageable
 
     public override void TakeDamage(Transform attacker, int damage, Vector3 dir, float force)
     {
-        GetComponent<Rigidbody>().AddForce(dir * force, ForceMode.Impulse);
+        if(parentHit != null) {
+            parentHit.TakeDamage(attacker, damage, dir, force);
+            if (parentHit.dead) {
+                dead = true;
+            }
+        }
+        // TODO: handle elemental damage(fire, for example)
+        knockBack(dir, force);
     }
 
     public override void InitiateTransmutation(float duration, GameObject replacement)
