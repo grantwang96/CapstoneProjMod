@@ -97,7 +97,7 @@ public class SpellCasterEnemyWander : NPCState
         myOwner.transform.eulerAngles = Vector3.Slerp(myOwner.transform.eulerAngles, targRotation, Time.deltaTime * turnDurationTime);
         Vector3 forward = myOwner.transform.TransformDirection(Vector3.forward);
         if (!emergencyTurning) { /*myOwner.rbody.MovePosition(myOwner.transform.position + forward * myOwner.currSpeed * Time.deltaTime);*/
-            myOwner.Move(forward * myOwner.currSpeed * Time.deltaTime);
+            myOwner.Move(forward * myOwner.currSpeed);
         }
         if (Time.time - startWander >= wanderTime) { myOwner.changeState(new SpellCasterEnemyIdle()); }
         if (myOwner.checkView())
@@ -263,14 +263,14 @@ public class SpellCasterEnemyAggro : NPCState
         {
             if (moving) {
                 // myOwner.rbody.MovePosition(myOwner.transform.position + myOwner.transform.right * right * myOwner.currSpeed * Time.deltaTime);
-                myOwner.Move(myOwner.transform.right * right * myOwner.currSpeed * Time.deltaTime);
+                myOwner.Move(myOwner.transform.right * right * myOwner.currSpeed);
                 Vector3 groundCheck = (myOwner.transform.right * right) - myOwner.transform.up;
                 int clear = checkGround(groundCheck);
 
                 if(clear == 0) { right *= -1; }
                 else if(clear == 2) {
                     // myOwner.rbody.MovePosition(myOwner.transform.position - myOwner.transform.transform.forward * myOwner.currSpeed * Time.deltaTime);
-                    myOwner.Move(myOwner.transform.transform.forward * myOwner.currSpeed * Time.deltaTime);
+                    myOwner.Move(myOwner.transform.transform.forward * myOwner.currSpeed);
                 }
                 if(Time.time - startTime >= waitTime) {
                     moving = false;
@@ -319,7 +319,7 @@ public class SpellCasterEnemyAggro : NPCState
         myOwner.transform.rotation = Quaternion.Lerp(myOwner.transform.rotation, lookDir, Time.deltaTime * 4f);
         myOwner.Head.forward = myOwner.transform.forward;
         // myOwner.rbody.MovePosition(myOwner.transform.position + myOwner.transform.forward * myOwner.currSpeed * Time.deltaTime);
-        myOwner.Move(myOwner.transform.forward * myOwner.currSpeed * Time.deltaTime);
+        myOwner.Move(myOwner.transform.forward * myOwner.currSpeed);
         if (Vector3.Distance(myOwner.transform.position, lastKnownLocation) < 0.4f) // If player is not seen, enter idling stage
         {
             myOwner.changeState(new NPCIdle());

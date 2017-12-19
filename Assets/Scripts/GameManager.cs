@@ -15,10 +15,12 @@ public class GameManager : MonoBehaviour { // will handle game events such as it
 
     public Text enemyCounter;
 
+    public bool isSpellSpawning;
+
 	// Use this for initialization
 	void Start () {
         Instance = this;
-        StartCoroutine(spellSpawning());
+        if (isSpellSpawning) { StartCoroutine(spellSpawning()); }
 	}
 	
 	// Update is called once per frame

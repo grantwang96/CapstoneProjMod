@@ -140,7 +140,7 @@ public class NPCWander : NPCState
         Vector3 forward = myOwner.transform.TransformDirection(Vector3.forward);
         if (!emergencyTurning) {
             /*myOwner.rbody.MovePosition(myOwner.transform.position + forward * myOwner.currSpeed * Time.deltaTime);*/
-            myOwner.Move(forward * myOwner.currSpeed * Time.deltaTime);
+            myOwner.Move(forward * myOwner.currSpeed);
         }
 
         if(Time.time - startWander >= duration) { myOwner.changeState(new NPCIdle()); }
@@ -291,7 +291,7 @@ public class NPCSeduced : NPCState
         // if I am too far from crush, move towards crush
         float dist = Vector3.Distance(myOwner.crush.returnBody().position, myOwner.transform.position);
         if(dist > 4f) {
-            myOwner.Move(myOwner.transform.forward * Time.deltaTime * myOwner.currSpeed);
+            myOwner.Move(myOwner.transform.forward * myOwner.currSpeed);
             // set an animation bool to "bouncy walking" or something
         }
         else {
@@ -375,7 +375,7 @@ public class MeleeEnemyChase : NPCState
         myOwner.Head.forward = myOwner.transform.forward;
 
         /*myOwner.rbody.MovePosition(myOwner.transform.position + myOwner.transform.forward * myOwner.currSpeed * Time.deltaTime);*/
-        myOwner.Move(myOwner.transform.forward * myOwner.currSpeed * Time.deltaTime);
+        myOwner.Move(myOwner.transform.forward * myOwner.currSpeed);
 
         if(Vector3.Distance(myOwner.transform.position, myOwner.attackTarget.position) < 1.5f) // replace 1f with range variable from myOwner
         {
@@ -395,7 +395,7 @@ public class MeleeEnemyChase : NPCState
         myOwner.Head.forward = myOwner.transform.forward;
 
         // myOwner.rbody.MovePosition(myOwner.transform.position + myOwner.transform.forward * myOwner.currSpeed * Time.deltaTime);
-        myOwner.Move(myOwner.transform.forward * myOwner.currSpeed * Time.deltaTime);
+        myOwner.Move(myOwner.transform.forward * myOwner.currSpeed);
         if (Vector3.Distance(myOwner.transform.position, lastKnownLocation) < 1f) {
             myOwner.changeState(new MeleeEnemyScan());
         }
@@ -469,7 +469,7 @@ public class MeleeEnemySeduced : NPCState
         {
             Vector3 dir = dirModded.normalized;
             // myOwner.rbody.MovePosition(dir * myOwner.currSpeed * Time.deltaTime);
-            myOwner.Move(dir * myOwner.currSpeed * Time.deltaTime);
+            myOwner.Move(dir * myOwner.currSpeed);
         }
     }
 
@@ -485,7 +485,7 @@ public class MeleeEnemySeduced : NPCState
         else {
             Vector3 dir = dirModded.normalized;
             // myOwner.rbody.MovePosition(dir * myOwner.currSpeed * Time.deltaTime);
-            myOwner.Move(dir * myOwner.currSpeed * Time.deltaTime);
+            myOwner.Move(dir * myOwner.currSpeed);
         }
     }
 

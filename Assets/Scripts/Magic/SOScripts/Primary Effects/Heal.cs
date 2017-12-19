@@ -8,8 +8,8 @@ public class Heal : SpellPrimary {
     public Transform healEffect;
 
     public override void ActivateSpell(SpellCaster user, SpellSecondary secondaryEffect, Vector3 fireDir) {
-        if (user.returnGun())
-        {
+        if (user.returnGun()) {
+
             // Create a cast effect
             ParticleSystem gunsmoke = Instantiate(castEffect, user.returnGun().position, Quaternion.LookRotation(fireDir));
             ParticleSystem.MainModule smokeMain = gunsmoke.main;
@@ -51,7 +51,8 @@ public class Heal : SpellPrimary {
         if (dam) // if you hit something damageable
         {
             dam.Heal(proj.power); // heal damage
-            Transform newHealEffect = Instantiate(healEffect, dam.transform.position, Quaternion.identity); // apply heal effect
+            Transform newHealEffect = Instantiate(healEffect, dam.transform); // apply heal effect
+            newHealEffect.rotation = Quaternion.identity; // make sure it's facing upwards
             Destroy(newHealEffect.gameObject, 3f); // get rid of heal effect
             proj.Die(); // destroy projectile
             return;

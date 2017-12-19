@@ -48,8 +48,15 @@ public class NPCScript : Movement {
     }
 
     public override void Move(Vector3 movement) {
-        if (!charCon.enabled) { return; }
-        charCon.Move(movement);
+        if (charCon == null || !charCon.enabled) { return; }
+        if (charCon.isGrounded) {
+            currVel = Vector3.Lerp(currVel, movement, friction);
+            charCon.Move(currVel * Time.deltaTime);
+        }
+        else {
+            currVel = Vector3.Lerp(currVel, movement, friction * 0.1f);
+            charCon.Move(currVel * Time.deltaTime);
+        }
     }
 
     public override void knockBack(Vector3 dir, float force)

@@ -16,7 +16,7 @@ MonoBehaviour:
   duration: 5
   powerLevelModifier: 1
   powerLevel: 1
-  baseColor: {r: 1, g: 1, b: 1, a: 0.7058824}
+  baseColor: {r: 0.5882353, g: 1, b: 0.78431374, a: 0.7058824}
   ammo: 3
   coolDown: 2
   title: Healing

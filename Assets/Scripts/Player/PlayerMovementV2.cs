@@ -37,9 +37,9 @@ public class PlayerMovementV2 : Movement {
     {
         if (falling) { yMove += Time.deltaTime * Physics.gravity.y; }
         // Debug.Log(charCon.isGrounded);
-        Vector3 move = moveDir * Time.deltaTime * slownessSeverity * drunkMod; // Get the total movement
+        Vector3 move = moveDir * slownessSeverity * drunkMod; // Get the total movement
         Move(move);
-        Move(Vector3.up * yMove * Time.deltaTime);
+        if(charCon != null && charCon.enabled) { charCon.Move(Vector3.up * yMove * Time.deltaTime); }
     }
 
     void calculateMove()
@@ -64,7 +64,14 @@ public class PlayerMovementV2 : Movement {
     public override void Move(Vector3 movement)
     {
         if (charCon == null || !charCon.enabled) { return; }
-        charCon.Move(movement);
+        if (charCon.isGrounded) {
+            currVel = Vector3.Lerp(currVel, movement, friction);
+            charCon.Move(currVel * Time.deltaTime);
+        }
+        else {
+            currVel = Vector3.Lerp(currVel, movement, friction * 0.1f);
+            charCon.Move(currVel * Time.deltaTime);
+        }
     }
 
     public override void setup()
@@ -134,7 +141,6 @@ public class PlayerMovementV2 : Movement {
             SpellBook touchedBook = coll.collider.GetComponent<SpellBook>();
             if (touchedBook) {
                 Debug.Log("I touched book!");
-                // myPlayerMagic.pickUpSpell(touchedBook);
             }
         }
         if (tag.Contains("Ground"))

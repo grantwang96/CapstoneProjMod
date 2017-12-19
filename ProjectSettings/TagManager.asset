@@ -10,6 +10,7 @@ TagManager:
   - Ground
   - Wall
   - Furniture
+  - Icy
   layers:
   - Default
   - TransparentFX
@@ -24,7 +25,7 @@ TagManager:
   - Book
   - HeadScanner
   - Player
-  - 
+  - EnvironmentModifier
   - 
   - 
   - 

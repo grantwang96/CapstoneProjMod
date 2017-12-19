@@ -182,6 +182,10 @@ public abstract class Movement : MonoBehaviour
     public float baseSpeed;
     public float maxSpeed;
     public float currSpeed;
+
+    public float friction = 1f;
+    public Vector3 currVel;
+
     public float sightRange;
     public float sightAngle;
 
@@ -223,6 +227,7 @@ public abstract class Movement : MonoBehaviour
         rbody = GetComponent<Rigidbody>();
         blueprint.setup(this);
         currSpeed = baseSpeed;
+        friction = 1f;
         // setup currState
     }
 
