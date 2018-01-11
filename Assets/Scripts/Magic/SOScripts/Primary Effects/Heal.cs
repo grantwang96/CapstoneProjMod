@@ -46,8 +46,11 @@ public class Heal : SpellPrimary {
         }
     }
 
-    public override void OnHit(Missile proj, Collider coll) {
-        Damageable dam = coll.GetComponent<Damageable>();
+    public override void OnHit(Missile proj, Collision coll) {
+
+        base.OnHit(proj, coll);
+
+        Damageable dam = coll.collider.GetComponent<Damageable>();
         if (dam) // if you hit something damageable
         {
             dam.Heal(proj.power); // heal damage

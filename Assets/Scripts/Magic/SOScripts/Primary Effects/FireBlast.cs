@@ -25,15 +25,18 @@ public class FireBlast : SpellPrimary {
         base.ActivateSpell(user, secondaryEffect, fireDir);
     }
 
-    public override void OnHit(Missile proj, Collider coll)
+    public override void OnHit(Missile proj, Collision coll)
     {
-        if (proj.mainShot && coll.transform == proj.originator) {
+        if (proj.mainShot && coll.collider.transform == proj.originator) {
             Debug.Log("Friendly Hit!");
             return;
         }
+
+        base.OnHit(proj, coll);
+
         if (proj.bounceCount <= 0) {
             if (proj.mainShot) {
-                proj.StartCoroutine(firePillar(coll.transform, proj));
+                proj.StartCoroutine(firePillar(coll.collider.transform, proj));
             }
             else {
                 subBlastHit(proj);

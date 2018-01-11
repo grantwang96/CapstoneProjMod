@@ -74,6 +74,12 @@ public class PlayerMovementV2 : Movement {
         }
     }
 
+    public override void Teleport(Vector3 newLocation)
+    {
+        Vector3 dir = newLocation - transform.position;
+        if (charCon.enabled) { charCon.Move(dir); }
+    }
+
     public override void setup()
     {
         // Do NOT give this a state machine!

@@ -12,6 +12,9 @@ public class EnemyData : ScriptableObject {
     [Range(0, 100)] public float sightRange;
     [Range(0, 90)] public float sightAngle;
 
+    [Range(0, 90)] public float attackRange;
+    [Range(1, 30)] public float attentionSpan;
+
     public string attackTargetTag;
 
     public int damage;
@@ -34,7 +37,8 @@ public class EnemyData : ScriptableObject {
         if(startingState != null) {
             owner.changeState(startingState);
         }
-        owner.GetComponent<Damageable>().max_health = health;
+        
+        // owner.GetComponent<Damageable>().max_health = health;
         owner.sightRange = sightRange;
         owner.sightAngle = sightAngle;
         owner.myType = myType;

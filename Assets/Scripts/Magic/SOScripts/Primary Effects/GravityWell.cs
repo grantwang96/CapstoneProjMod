@@ -12,9 +12,10 @@ public class GravityWell : SpellPrimary {
         base.ActivateSpell(user, secondaryEffect, fireDir);
     }
 
-    public override void OnHit(Missile proj, Collider coll)
+    public override void OnHit(Missile proj, Collision coll)
     {
         if (proj.friendlyOff && coll.transform == proj.originator) { return; }
+        base.OnHit(proj, coll);
         if (proj.bounceCount <= 0)
         {
             GravityWellVortex newGravWell = Instantiate(gravWellPrefab, proj.transform.position, Quaternion.identity); // create gravity well

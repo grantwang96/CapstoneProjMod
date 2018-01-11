@@ -12,12 +12,15 @@ public class MagicBlast : SpellPrimary { // Standard damaging magic attack
         base.ActivateSpell(user, secondaryEffect, fireDir);
     }
 
-    public override void OnHit(Missile proj, Collider coll) {
+    public override void OnHit(Missile proj, Collision coll) {
         if(!proj.friendlyOff && coll.transform == proj.originator) {
             Debug.Log("Friendly Hit!");
             return;
         }
-        Damageable collDam = coll.GetComponent<Damageable>();
+
+        base.OnHit(proj, coll);
+
+        Damageable collDam = coll.collider.GetComponent<Damageable>();
         if (collDam) {
             Vector3 knockBack = (proj.transform.position - coll.transform.position).normalized;
             knockBack.y = upwardKnockup;

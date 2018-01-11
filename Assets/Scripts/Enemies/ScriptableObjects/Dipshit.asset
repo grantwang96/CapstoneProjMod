@@ -16,6 +16,8 @@ MonoBehaviour:
   maxSpeed: 6
   sightRange: 30
   sightAngle: 80
+  attackRange: 2.9
+  attentionSpan: 6.1
   attackTargetTag: Player
   damage: 5
   myType: 0

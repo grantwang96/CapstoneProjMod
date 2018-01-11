@@ -43,7 +43,7 @@ public class Missile : MonoBehaviour {
 
     void OnCollisionEnter(Collision coll) {
         if (primaryEffect) { // if primaryEffect is not null
-            primaryEffect.OnHit(this, coll.collider);
+            primaryEffect.OnHit(this, coll);
         }
         else {
             // Uh...whelp

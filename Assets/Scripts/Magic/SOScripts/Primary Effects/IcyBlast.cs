@@ -30,8 +30,9 @@ public class IcyBlast : SpellPrimary {
         base.ActivateSpell(user, secondaryEffect, fireDir);
     }
 
-    public override void OnHit(Missile proj, Collider coll)
+    public override void OnHit(Missile proj, Collision coll)
     {
+        base.OnHit(proj, coll);
         proj.bounceCount--;
         explode(proj, coll);
         if(proj.bounceCount <= 0) { proj.Die(); }
@@ -42,12 +43,15 @@ public class IcyBlast : SpellPrimary {
         base.bounce(proj);
     }
 
-    void explode(Missile missile, Collider target)
+    void explode(Missile missile, Collision target)
     {
         GameObject newIceExplosion = Instantiate(iceExplosion, missile.transform.position, Quaternion.identity);
         Destroy(newIceExplosion, 1f);
 
         // damage the damageables
+
+        
+        /*
         Collider[] colls = Physics.OverlapSphere(missile.transform.position, radius, frostable, QueryTriggerInteraction.Ignore);
         if(colls.Length != 0) {
             foreach(Collider coll in colls) {
@@ -64,8 +68,8 @@ public class IcyBlast : SpellPrimary {
                 }
             }
         }
-
+        */
         Rigidbody sub = Instantiate(submissile, missile.transform.position, Quaternion.identity);
-        sub.GetComponent<IceSubMissile>().radius = radius;
+        // sub.GetComponent<IceSubMissile>().radius = radius;
     }
 }

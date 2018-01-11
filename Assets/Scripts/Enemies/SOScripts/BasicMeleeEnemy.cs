@@ -7,13 +7,16 @@ public class BasicMeleeEnemy : EnemyData {
     
     public override void setup(Movement owner)
     {
-        startingState = new NPCWander();
+        startingState = new MeleeEnemyIdle();
         owner.baseSpeed = baseSpeed;
         owner.maxSpeed = maxSpeed;
         Damageable ownerDam = owner.GetComponent<Damageable>();
-        ownerDam.max_health = health;
-        owner.damage = damage;
-        owner.attackTarget = GameObject.FindGameObjectWithTag(attackTargetTag).transform;
+
+        if(ownerDam) {
+            ownerDam.max_health = health;
+            owner.damage = damage;
+            owner.attackTarget = GameObject.FindGameObjectWithTag(attackTargetTag).transform;
+        }
         base.setup(owner);
     }
 }

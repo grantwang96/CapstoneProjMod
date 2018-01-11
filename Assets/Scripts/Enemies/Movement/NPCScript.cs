@@ -59,6 +59,12 @@ public class NPCScript : Movement {
         }
     }
 
+    public override void Teleport(Vector3 newLocation)
+    {
+        Vector3 dir = newLocation - transform.position;
+        if(charCon.enabled) { charCon.Move(dir); }
+    }
+
     public override void knockBack(Vector3 dir, float force)
     {
         if (movementTakeOver != null) { StopCoroutine(movementTakeOver); hamper--; }

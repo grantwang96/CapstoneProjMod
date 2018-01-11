@@ -25,7 +25,7 @@ public class SpellCasterEnemyIdle : NPCState
 
         // Do some head turning
         base.Execute();
-        if (Time.time - startIdle >= idleTime)
+        if (Time.time - stateStartTime >= idleTime)
         {
             myOwner.changeState(new SpellCasterEnemyWander());
         }

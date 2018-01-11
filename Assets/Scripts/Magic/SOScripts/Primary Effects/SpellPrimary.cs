@@ -28,18 +28,6 @@ public class SpellPrimary : ScriptableObject {
         {
             // Make sure we dont fire inside the user
             Vector3 firePoint = firingPoint.position;
-            /*
-            Collider[] colls = Physics.OverlapSphere(firePoint, projectilePrefab.GetComponent<SphereCollider>().radius);
-            if (colls.Length != 0) {
-                for(int i = 0; i < colls.Length; i++) {
-                    if(colls[i].transform == user.returnBody()) {
-                        firePoint += user.returnBody().forward;
-                        Debug.Log("Firepoint: " + firePoint + " is within body!");
-                        break;
-                    }
-                }
-            }
-            */
 
             // Create spawn shots
             ParticleSystem gunsmoke = Instantiate(castEffect, firePoint, Quaternion.LookRotation(fireDir));
@@ -75,9 +63,9 @@ public class SpellPrimary : ScriptableObject {
         }
     }
 
-    public virtual void OnHit(Missile proj, Collider coll) // When the spell hits something
+    public virtual void OnHit(Missile proj, Collision coll) // When the spell hits something
     {
-        
+        proj.secondaryEffect.OnHit(proj.originator, proj);
     }
 
     public virtual void bounce(Missile proj)

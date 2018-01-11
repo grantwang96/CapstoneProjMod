@@ -60,7 +60,7 @@ public class SurroundSideEffect : SpellSecondary {
             if (projRbody.SweepTest(before - after, out hit, Vector3.Distance(before, after))) {
                 if (hit.collider.GetComponent<Damageable>()) {
                     projRbody.MovePosition(hit.point);
-                    projectile.primaryEffect.OnHit(projectile, hit.collider);
+                    // projectile.primaryEffect.OnHit(projectile, hit.collider);
                 }
             }
             yield return new WaitForEndOfFrame();

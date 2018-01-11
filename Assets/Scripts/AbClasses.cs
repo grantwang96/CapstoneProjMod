@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public abstract class Damageable : MonoBehaviour
 {
@@ -182,6 +183,7 @@ public abstract class Movement : MonoBehaviour
     public float baseSpeed;
     public float maxSpeed;
     public float currSpeed;
+    [SerializeField] public float maxWanderDistance;
 
     public float friction = 1f;
     public Vector3 currVel;
@@ -193,6 +195,7 @@ public abstract class Movement : MonoBehaviour
 
     public Rigidbody rbody;
     public Animator anim;
+    public NavMeshAgent agent;
     public EnemyData blueprint;
     public EnemyData.CombatType myType;
 
@@ -207,6 +210,7 @@ public abstract class Movement : MonoBehaviour
     [SerializeField] float raySpread;
     public LayerMask scanLayer;
     public LayerMask obstacleLayer;
+    public LayerMask pathFindingLayers;
 
     public Transform attackTarget; // who to target
     public SpellCaster crush; // if seduced
@@ -236,9 +240,29 @@ public abstract class Movement : MonoBehaviour
         if(currState != null && hamper <= 0) { currState.Execute(); }
     }
 
+    public Vector3 getRandomLocation(Vector3 origin, float range)
+    {
+        Vector3 randPos = Random.insideUnitSphere * maxWanderDistance;
+        randPos += transform.position;
+
+        NavMeshHit navHit;
+        NavMesh.SamplePosition(randPos, out navHit, maxWanderDistance, pathFindingLayers);
+
+        return navHit.position;
+    }
+
     public virtual void Move(Vector3 movement)
     {
         rbody.MovePosition(transform.position + movement);
+    }
+
+    public virtual void Stop()
+    {
+        rbody.velocity = Vector3.zero;
+    }
+
+    public virtual void Teleport(Vector3 newLocation) {
+        rbody.MovePosition(newLocation);
     }
 
     public virtual bool checkView()
@@ -280,13 +304,14 @@ public abstract class Movement : MonoBehaviour
 
     public virtual void changeState(NPCState newState)
     {
-        // if(currState != null) { currState.Exit(); }
+        if(currState != null) { currState.Exit(); }
         currState = newState;
         currState.Enter(this);
     }
 
     public virtual void changeState(NPCState newState, float newDuration)
     {
+        if (currState != null) { currState.Exit(); }
         currState = newState;
         currState.Enter(this, newDuration);
     }
@@ -297,8 +322,7 @@ public abstract class Movement : MonoBehaviour
         float startTime = Time.time;
         // play attack animation
         anim.Play("Attack");
-        while (anim.GetCurrentAnimatorStateInfo(0).IsName("Attack"))
-        {
+        while (anim.GetCurrentAnimatorStateInfo(0).IsName("Attack")) {
             yield return new WaitForEndOfFrame();
         }
         hamper--;
@@ -328,7 +352,7 @@ public abstract class NPCState
 
     public float duration;
     public float idleTime;
-    public float startIdle;
+    public float stateStartTime;
     public float sightRange;
     public Movement myOwner;
 
@@ -346,7 +370,7 @@ public abstract class NPCState
     {
         myOwner = owner;
         idleTime = Random.Range(4f, 6f);
-        startIdle = Time.time;
+        stateStartTime = Time.time;
         targetRotation = Quaternion.Euler(0, 0, 0);
         turnDurationTime = Random.Range(1f, 2f);
         anim = myOwner.anim;
@@ -369,5 +393,24 @@ public abstract class NPCState
     public virtual void Exit()
     {
         // Perform last second actions...
+    }
+
+    public virtual void becomeAggro(EnemyData.CombatType combatType)
+    {
+        switch (combatType)
+        {
+            case EnemyData.CombatType.Melee:
+                // myOwner.changeState(new MeleeEnemyChase());
+                break;
+            case EnemyData.CombatType.SpellCaster:
+                // myOwner.changeState(new SpellCasterEnemyAggro());
+                break;
+            case EnemyData.CombatType.Mixed:
+                break;
+            case EnemyData.CombatType.Ranged:
+                break;
+            case EnemyData.CombatType.Support:
+                break;
+        }
     }
 }

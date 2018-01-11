@@ -12,12 +12,14 @@ public class Seduction : SpellPrimary {
         base.ActivateSpell(user, secondaryEffect, fireDir);
     }
 
-    public override void OnHit(Missile proj, Collider coll)
+    public override void OnHit(Missile proj, Collision coll)
     {
-        Damageable dam = coll.GetComponent<Damageable>();
+        Damageable dam = coll.collider.GetComponent<Damageable>();
         if (!proj.friendlyOff && dam.transform == proj.originator) { // if friendly fire is on and the collider is the owner
             return;
         }
+
+        base.OnHit(proj, coll);
 
         // the part where you seduce that PIMPLE-POPPING, NOSE-PICKING, NIPPLE-TWISTING, DICK OF AN ASS.
 

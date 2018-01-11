@@ -36,9 +36,9 @@ MonoBehaviour:
     type: 2}
   frostEffect: {fileID: 1902888575177058, guid: c642c5f471c641944afabf6266119b5d,
     type: 2}
-  minIcySurfaces: 5
-  maxIcySurfaces: 10
-  radius: 5
+  minIcySurfaces: 3
+  maxIcySurfaces: 5
+  radius: 0.64
   maxIcePrefabRadius: 5
   knockBackForce: 10
   upwardKnockup: 0.5

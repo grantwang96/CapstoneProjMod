@@ -12,9 +12,10 @@ public class Transmute : SpellPrimary {
         base.ActivateSpell(user, secondaryEffect, fireDir);
     }
 
-    public override void OnHit(Missile proj, Collider coll)
+    public override void OnHit(Missile proj, Collision coll)
     {
-        Damageable collDam = coll.GetComponent<Damageable>();
+        base.OnHit(proj, coll);
+        Damageable collDam = coll.collider.GetComponent<Damageable>();
         if (collDam) {
             collDam.InitiateTransmutation(proj.duration, possibleReplacements[Random.Range(0, possibleReplacements.Length)]);
             SpellCaster originator = proj.originator.GetComponent<SpellCaster>();

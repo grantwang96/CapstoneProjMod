@@ -45,7 +45,7 @@ public class NPCIdle : NPCState
         // Do some head turning
         base.Execute();
 
-        if (Time.time - startIdle >= duration) {
+        if (Time.time - stateStartTime >= duration) {
             myOwner.changeState(new NPCWander());
         }
     }
