@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MeleeEnemyDamageable : Damageable {
+public class WizardDamageable : Damageable {
 
     public Rigidbody rbody;
     Coroutine knockBackRoutine;
@@ -10,8 +10,7 @@ public class MeleeEnemyDamageable : Damageable {
     public override void knockBack(Vector3 dir, float force)
     {
         // rbody.AddForce(dir * force, ForceMode.Impulse);
-        if (knockBackRoutine != null)
-        {
+        if(knockBackRoutine != null) {
             StopCoroutine(knockBackRoutine);
         }
         knockBackRoutine = StartCoroutine(knockingBack(dir, force));
@@ -38,14 +37,10 @@ public class MeleeEnemyDamageable : Damageable {
         knockBackRoutine = null;
     }
 
-    public override void InitiateTransmutation(float duration, GameObject replacement)
-    {
-        base.InitiateTransmutation(duration, replacement);
-    }
-
     public override IEnumerator processTransmutation(float duration, GameObject replacement)
     {
         myMovement.hamper++;
+        GetComponent<SpellCaster>().setCanShoot(false);
 
         // shut off the renderers
         Collider myColl = GetComponent<Collider>();
@@ -70,7 +65,6 @@ public class MeleeEnemyDamageable : Damageable {
         myMovement.agent.nextPosition = myReplace.transform.position;
         transform.position = myMovement.agent.nextPosition;
         
-
         Destroy(myReplace); // Destroy my replacement
 
         // reaactivate colliders and renderers
@@ -78,11 +72,7 @@ public class MeleeEnemyDamageable : Damageable {
         if (allRends.Length > 0) { foreach (Renderer rend in allRends) { rend.enabled = true; } }
         replacedBody = null;
         myMovement.hamper--;
+        GetComponent<SpellCaster>().setCanShoot(true);
     }
 
-    public override void Seduce(float duration, GameObject target, Transform owner)
-    {
-        base.Seduce(duration, target, owner);
-        myMovement.changeState(new MeleeEnemySeduced(), duration);
-    }
 }

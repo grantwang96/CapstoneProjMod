@@ -14,6 +14,8 @@ public interface SpellCaster
     Transform returnGun();
     Transform returnBody();
     Transform returnHead();
+    bool canShoot();
+    void setCanShoot(bool can);
 }
 
 public interface Interactable

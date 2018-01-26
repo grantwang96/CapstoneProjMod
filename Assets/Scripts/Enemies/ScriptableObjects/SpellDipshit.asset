@@ -11,11 +11,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf05c30e18d28744ebfca712701f8657, type: 3}
   m_Name: SpellDipshit
   m_EditorClassIdentifier: 
-  health: 20
+  health: 69
   baseSpeed: 2
   maxSpeed: 4
   sightRange: 40
   sightAngle: 80
+  attackRange: 80
+  attentionSpan: 12
   attackTargetTag: Player
   damage: 10
   myType: 3

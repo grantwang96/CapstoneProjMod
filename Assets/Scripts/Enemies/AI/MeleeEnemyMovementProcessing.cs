@@ -434,6 +434,7 @@ public class MeleeEnemyScan : NPCState
     }
 }
 
+/*
 public class MeleeEnemySeduced : NPCState
 {
     Transform master;
@@ -494,3 +495,4 @@ public class MeleeEnemySeduced : NPCState
         
     }
 }
+*/

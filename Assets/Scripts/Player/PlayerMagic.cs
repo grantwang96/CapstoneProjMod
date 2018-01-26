@@ -10,6 +10,10 @@ public class PlayerMagic : MonoBehaviour, SpellCaster {
     public int maxSpells;
     int currentHeld;
 
+    [SerializeField] bool canFireSpells;
+    public bool canShoot() { return canFireSpells; }
+    public void setCanShoot(bool can) { canFireSpells = can; }
+
     public float spellPickUpSpeed;
 
     public Transform body;
@@ -38,6 +42,7 @@ public class PlayerMagic : MonoBehaviour, SpellCaster {
         instance = this;
         currentHeld = 0;
         canFire = true;
+        canFireSpells = true;
         updateCurrentHeld();
 	}
 	

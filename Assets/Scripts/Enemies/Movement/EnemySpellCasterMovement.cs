@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -186,6 +187,16 @@ public class EnemySpellCasterMovement : Movement, SpellCaster
     {
         
     }
-    
+
+    public bool canShoot()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void setCanShoot(bool can)
+    {
+        throw new NotImplementedException();
+    }
+
     #endregion
 }

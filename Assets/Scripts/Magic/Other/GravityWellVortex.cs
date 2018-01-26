@@ -73,6 +73,7 @@ public class GravityWellVortex : MonoBehaviour {
             foreach (trappedIdiot idiot in idiots)
             {
                 if (idiot == null) { continue; }
+                if (idiot.loser == null) { continue; }
                 Damageable dam = idiot.loser.GetComponent<Damageable>();
                 if (dam) {
                     dam.vortexGrab(transform, force);

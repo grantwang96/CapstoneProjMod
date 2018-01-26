@@ -7,7 +7,7 @@ public abstract class Damageable : MonoBehaviour
 {
     // health variables
     public int max_health;
-    int _health;
+    [SerializeField] int _health;
     public int health {
         get { return _health; }
         set { _health = value; } }
@@ -22,6 +22,7 @@ public abstract class Damageable : MonoBehaviour
     // rbody or character controller
     // public Rigidbody rbody;
     // public CharacterController charCon;
+    public Collider myCollider;
     public MeshRenderer myRend;
 
     public Movement myMovement;
@@ -92,24 +93,6 @@ public abstract class Damageable : MonoBehaviour
 
     }
 
-    public virtual void Blind(float duration, float severity)
-    {
-        Movement myOwnerMove = GetComponent<Movement>();
-        myOwnerMove.sightRange = 0f;
-        myOwnerMove.changeState(new NPCIdle());
-    }
-
-    public virtual void Drunk(float duration)
-    {
-        // myOwnerMove.changeState(new drunkState());
-    }
-
-    public virtual void Slow(float duration, float severity)
-    {
-        Movement myOwnerMove = GetComponent<Movement>();
-        myOwnerMove.currSpeed *= 0.5f;
-    }
-
     public virtual void InitiateTransmutation(float duration, GameObject replacement)
     {
         StartCoroutine(processTransmutation(duration, replacement));
@@ -118,15 +101,12 @@ public abstract class Damageable : MonoBehaviour
     public virtual IEnumerator processTransmutation(float duration, GameObject replacement)
     {
         myMovement.hamper++;
-        // rbody.constraints = RigidbodyConstraints.FreezeAll;
-        // myRend.enabled = false;
         Collider myColl = GetComponent<Collider>();
         myColl.enabled = false;
         Renderer[] allRends = GetComponentsInChildren<Renderer>();
         if (allRends.Length > 0) {
             foreach(Renderer rend in allRends) { rend.enabled = false; }
         }
-        // spawn effect
         GameObject myReplace = Instantiate(replacement, transform.position, transform.rotation);
         Rigidbody replaceRigidBody = myReplace.GetComponent<Rigidbody>();
         replaceRigidBody.AddExplosionForce(3f, transform.position, 1f);
@@ -135,8 +115,6 @@ public abstract class Damageable : MonoBehaviour
         yield return new WaitForSeconds(duration);
         transform.position = myReplace.transform.position;
         Destroy(myReplace); // Destroy my replacement
-        // rbody.constraints = RigidbodyConstraints.None;
-        // myRend.enabled = true;
         myColl.enabled = true;
         if (allRends.Length > 0) {
             foreach (Renderer rend in allRends) { rend.enabled = true; }
@@ -150,13 +128,14 @@ public abstract class Damageable : MonoBehaviour
         transmutable = newBool;
     }
 
-    public virtual void Seduce(float duration, GameObject target, SpellCaster owner)
+    public virtual void Seduce(float duration, GameObject target, Transform owner)
     {
         if(myMovement.crush != null) { // if already seduced
             myMovement.crush.removeFromSeductionList(this); // remove from the seduction list
         }
-        myMovement.crush = owner;
-        owner.addToSeductionList(this);
+        myMovement.crushTarget = owner;
+        myMovement.crush = myMovement.crushTarget.GetComponent<SpellCaster>();
+        myMovement.crush.addToSeductionList(this);
     }
 
     public virtual void setCurrentTarget(Damageable target, SpellCaster owner)
@@ -193,6 +172,7 @@ public abstract class Movement : MonoBehaviour
 
     public Transform Head;
 
+    public Damageable myDamageable;
     public Rigidbody rbody;
     public Animator anim;
     public NavMeshAgent agent;
@@ -203,7 +183,6 @@ public abstract class Movement : MonoBehaviour
     public NPCState getCurrentState() { return currState; }
 
     public int damage;
-
     public int hamper;
 
     [SerializeField] int numRaycasts;
@@ -213,11 +192,17 @@ public abstract class Movement : MonoBehaviour
     public LayerMask pathFindingLayers;
 
     public Transform attackTarget; // who to target
+    public Transform crushTarget; // if seduced
     public SpellCaster crush; // if seduced
+
+    public virtual void Awake()
+    {
+        setup();
+    }
 
     public virtual void Start()
     {
-        setup();
+        Debug.Log("I live");
     }
 
     public virtual void Update()
@@ -242,11 +227,11 @@ public abstract class Movement : MonoBehaviour
 
     public Vector3 getRandomLocation(Vector3 origin, float range)
     {
-        Vector3 randPos = Random.insideUnitSphere * maxWanderDistance;
-        randPos += transform.position;
+        Vector3 randPos = Random.insideUnitSphere * range;
+        randPos += origin;
 
         NavMeshHit navHit;
-        NavMesh.SamplePosition(randPos, out navHit, maxWanderDistance, pathFindingLayers);
+        NavMesh.SamplePosition(randPos, out navHit, range, pathFindingLayers);
 
         return navHit.position;
     }
@@ -268,27 +253,31 @@ public abstract class Movement : MonoBehaviour
     public virtual bool checkView()
     {
         if(attackTarget == null) { return false; }
+
         float dist = Vector3.Distance(transform.position, attackTarget.position);
         float angle = Vector3.Angle(Head.forward, attackTarget.position - Head.position);
+
         if(dist <= sightRange && angle <= sightAngle) {
             float angleInterval = 360 / numRaycasts;
             RaycastHit rayHit;
             Debug.DrawRay(Head.position, attackTarget.position - Head.position, Color.yellow);
             if (Physics.Raycast(Head.position, (attackTarget.position - Head.position).normalized, out rayHit, sightRange, scanLayer)) {
-                if (rayHit.collider.transform == attackTarget){ return true; }
+                if (rayHit.collider.transform == attackTarget) { return true; }
                 Damageable dam = rayHit.collider.GetComponent<Damageable>();
                 if(dam != null && dam.parentHit != null) {
                     if(dam.parentHit.transform == attackTarget) { return true; }
                 }
             }
-            for (int i = 0; i < numRaycasts; i++)
-            {
+
+            for (int i = 0; i < numRaycasts; i++) {
                 float ang = angleInterval * i;
+
                 Vector3 offset = new Vector3();
                 offset.x = transform.InverseTransformDirection(attackTarget.position).x + raySpread * Mathf.Sin(ang * Mathf.Deg2Rad);
-                offset.y = transform.InverseTransformDirection(attackTarget.position).y + raySpread * 2f * Mathf.Cos(ang * Mathf.Deg2Rad);
+                offset.y = transform.InverseTransformDirection(attackTarget.position).y + raySpread * Mathf.Cos(ang * Mathf.Deg2Rad);
                 offset.z = transform.InverseTransformDirection(attackTarget.position).z;
                 offset = transform.TransformDirection(offset);
+
                 if (Physics.Raycast(Head.position, (offset - Head.position).normalized, out rayHit, sightRange, scanLayer)) {
                     if (rayHit.collider.transform == attackTarget) { return true; }
                     Damageable dam = rayHit.collider.GetComponent<Damageable>();
@@ -314,6 +303,13 @@ public abstract class Movement : MonoBehaviour
         if (currState != null) { currState.Exit(); }
         currState = newState;
         currState.Enter(this, newDuration);
+    }
+
+    public virtual void changeState(NPCState newState, NPCState prevState)
+    {
+        // no need to exit previous state(will be returning later, anyways)
+        currState = newState;
+        currState.Enter(this, prevState);
     }
 
     public virtual IEnumerator attack(Vector3 target)
@@ -350,6 +346,9 @@ public abstract class NPCState
 
     public stateType state;
 
+    public NPCState previousState;
+    public float prevStateDuration;
+
     public float duration;
     public float idleTime;
     public float stateStartTime;
@@ -369,7 +368,7 @@ public abstract class NPCState
     public virtual void Enter(Movement owner)
     {
         myOwner = owner;
-        idleTime = Random.Range(4f, 6f);
+        duration = Random.Range(4f, 6f);
         stateStartTime = Time.time;
         targetRotation = Quaternion.Euler(0, 0, 0);
         turnDurationTime = Random.Range(1f, 2f);
@@ -379,9 +378,29 @@ public abstract class NPCState
 
     public virtual void Enter(Movement owner, float newDuration)
     {
-        myOwner = owner;
-        duration = newDuration;
+        myOwner = owner; // save the owner
+        duration = newDuration; // set the duration
+        stateStartTime = Time.time;
+
         anim = myOwner.anim;
+        anim.SetInteger("Status", 0);
+
+        Debug.Log("Entering Idle...");
+    }
+
+    public virtual void Enter(Movement owner, NPCState prevState) // if you want to return to a specific state
+    {
+        myOwner = owner;
+        anim = myOwner.anim;
+        previousState = prevState;
+    }
+
+    public virtual void Enter(Movement owner, NPCState prevState, float remainingDuration) // if you're "resuming" a previous state
+    {
+        myOwner = owner;
+        anim = myOwner.anim;
+        previousState = prevState;
+        prevStateDuration = remainingDuration;
     }
 
     public virtual void Execute()

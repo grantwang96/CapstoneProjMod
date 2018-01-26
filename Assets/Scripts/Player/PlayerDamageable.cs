@@ -156,44 +156,6 @@ public class PlayerDamageable : Damageable {
         drunkness = null;
     }*/
 
-    public override void Slow(float duration, float severity)
-    {
-        if (slowness != null) { StopCoroutine(slowness); }
-        slowness = StartCoroutine(processSlowness(duration, severity));
-    }
-
-    IEnumerator processSlowness(float duration, float severity)
-    {
-        PlayerMovementV2 myMove = GetComponent<PlayerMovementV2>();
-        myMove.slownessSeverity *= severity;
-        if (myMove.slownessSeverity < 0.25f) { myMove.slownessSeverity = 0.25f; }
-        float startTime = Time.time;
-        Transform statEffectObj = statusEffectBar.transform.Find("Slow");
-        Image newStatusEffect;
-        if (statEffectObj == null)
-        {
-            newStatusEffect = Instantiate(statusEffectPrefab);
-            newStatusEffect.transform.name = "Slow";
-            newStatusEffect.sprite = slowIcon;
-            newStatusEffect.transform.SetParent(statusEffectBar.transform, false);
-        }
-        else
-        {
-            newStatusEffect = statEffectObj.GetComponent<Image>();
-        }
-        float originSeverity = myMove.slownessSeverity;
-        float full = 1f - myMove.slownessSeverity;
-        while (Time.time - startTime < duration)
-        {
-            myMove.slownessSeverity = originSeverity + ((Time.time - startTime) / duration) * full;
-            newStatusEffect.fillAmount = 1f - (myMove.slownessSeverity - originSeverity) / full;
-            yield return new WaitForEndOfFrame();
-        }
-        Destroy(newStatusEffect.gameObject);
-        myMove.slownessSeverity = 1f;
-        slowness = null;
-    }
-
     public override void InitiateTransmutation(float duration, GameObject replacement)
     {
         if (!transmutable) { return; }
@@ -263,7 +225,7 @@ public class PlayerDamageable : Damageable {
         Destroy(newBody);
     }
 
-    public override void Seduce(float duration, GameObject target, SpellCaster owner)
+    public override void Seduce(float duration, GameObject target, Transform owner)
     {
         
     }

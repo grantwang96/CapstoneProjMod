@@ -12,7 +12,7 @@ public class SpellCasterEnemy : EnemyData {
 
     public override void setup(Movement owner)
     {
-        startingState = new NPCIdle();
+        startingState = new WizardEnemyIdle();
         owner.baseSpeed = baseSpeed;
         owner.maxSpeed = maxSpeed;
         Damageable ownerDam = owner.GetComponent<Damageable>();
@@ -25,8 +25,7 @@ public class SpellCasterEnemy : EnemyData {
             SpellCaster spellCaster = owner.GetComponent<SpellCaster>();
 
             if (!spellCaster.returnSpell()) {
-
-
+                
                 SpellPrimary primary = possibleSpellPrimaries[Random.Range(0, possibleSpellPrimaries.Length)];
                 SpellSecondary secondary = possibleSpellSecondaries[Random.Range(0, possibleSpellSecondaries.Length)];
                 SpellBook newSpellBook = SpellManager.Instance.GenerateSpell(primary, secondary, owner.transform.position); // Create a new spellbook

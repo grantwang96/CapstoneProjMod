@@ -11,14 +11,14 @@ public class NPCDamageable : Damageable {
 
     public MeshRenderer[] renderers; // All renderers on this gameobject
 
-    public override void Seduce(float duration, GameObject target, SpellCaster owner)
+    public override void Seduce(float duration, GameObject target, Transform owner)
     {
         base.Seduce(duration, target, owner);
         if(seduction != null) {
             StopCoroutine(seduction);
             myMovement.hamper--;
         }
-        seduction = StartCoroutine(processSeduction(duration, target, owner));
+        seduction = StartCoroutine(processSeduction(duration, target, owner.GetComponent<SpellCaster>()));
     }
 
     IEnumerator processSeduction(float duration, GameObject target, SpellCaster owner)
