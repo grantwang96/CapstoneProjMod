@@ -74,6 +74,8 @@ public class WizardEnemyAggro : NPCState
     bool targetWasInView;
     float lostTargetViewTime = 0f;
 
+    bool hasCoverPosition = false;
+
     public override void Enter(Movement owner)
     {
         myOwner = owner;
@@ -99,23 +101,27 @@ public class WizardEnemyAggro : NPCState
         myOwner.transform.rotation = Quaternion.Lerp(myOwner.transform.rotation, forward, 0.8f);
 
         // if you have nothing to chase, stop chasing
-        if (myOwner.attackTarget == null) { myOwner.changeState(new WizardEnemyIdle(), Random.Range(4f, 6f)); }
+        if (myOwner.attackTarget == null) {
+            if(previousState != null) { myOwner.changeState(previousState); }
+            else { myOwner.changeState(new WizardEnemyIdle(), Random.Range(4f, 6f)); }
+        }
 
         // Check to see if the target is still in view
         targetInView = myOwner.checkView();
 
         // Enter idle if target has been out of view too long
         if (!targetInView) {
+            hasCoverPosition = false;
             lostTargetViewTime += Time.deltaTime;
-            // myOwner.agent.SetDestination(myOwner.attackTarget.position);
+            myOwner.agent.SetDestination(myOwner.attackTarget.position);
             if (lostTargetViewTime >= duration) {
                 Debug.Log("Where'd you go?");
                 myOwner.changeState(new WizardEnemyIdle(), Random.Range(4f, 6f));
             }
         }
-        else { lostTargetViewTime = 0f; }
-
-        // if(targetInView && !targetWasInView) { FindCover(); }
+        else {
+            if(!hasCoverPosition) { FindCover(); }
+        }
 
         if(myOwner.agent.desiredVelocity.magnitude < 0.5f) { myOwner.changeState(new WizardEnemyAttack()); }
         targetWasInView = targetInView;
@@ -128,25 +134,11 @@ public class WizardEnemyAggro : NPCState
 
     void FindCover()
     {
-        List<NavMeshHit> potentialPositions = new List<NavMeshHit>();
-        for (int i = 0; i < 10; i++) {
-            Vector3 randPos = myOwner.getRandomLocation(myOwner.attackTarget.position, myOwner.maxWanderDistance * 2);
-            NavMeshHit hit;
-            if (NavMesh.FindClosestEdge(randPos, out hit, myOwner.agent.areaMask)) {
-                Vector3 dir = myOwner.attackTarget.position - hit.position;
-                dir.y = 0;
-
-                float angle = Vector3.Angle(hit.normal, dir.normalized);
-                if (angle >= 90f) {
-                    potentialPositions.Add(hit);
-                    Debug.Log("Position: " + hit.position + ". Angle: " + angle);
-                }
-            }
-        }
-
-        if(potentialPositions.Count > 0) {
-            NavMeshHit[] arr = SplitNMerge(potentialPositions.ToArray());
-            myOwner.agent.SetDestination(arr[0].position);
+        myOwner.agent.ResetPath();
+        NavMeshHit hit;
+        if(NavMesh.FindClosestEdge(myOwner.transform.position, out hit, myOwner.agent.areaMask)) {
+            hasCoverPosition = true;
+            myOwner.agent.SetDestination(hit.position);
         }
     }
 
@@ -251,5 +243,127 @@ public class WizardEnemyAttack : NPCState
 
 public class WizardEnemySeduced : NPCState
 {
+    bool targetInView;
+    bool targetWasInView;
 
+    bool hasCoverPosition;
+
+    public override void Enter(Movement owner, NPCState prevState, float newDuration)
+    {
+        base.Enter(owner, prevState, newDuration);
+
+        // always look at the target
+        myOwner.agent.updateRotation = false;
+
+        targetInView = false;
+        myOwner.agent.speed = myOwner.maxSpeed;
+        anim = myOwner.anim;
+        anim.SetInteger("Status", 2);
+
+        hasCoverPosition = false;
+        // FindCover();
+    }
+
+    public override void Execute()
+    {
+        if(myOwner.attackTarget != null) {
+            // Check to see if the target is still in view
+            targetInView = myOwner.checkView();
+
+            // Enter idle if target has been out of view too long
+            if (!targetInView) {
+                hasCoverPosition = false;
+                myOwner.agent.SetDestination(myOwner.attackTarget.position);
+            }
+            else {
+                if (!hasCoverPosition) { FindCover(); }
+                float distance = Vector3.Distance(myOwner.transform.position, myOwner.agent.destination);
+                if (distance < myOwner.blueprint.attackRange) { myOwner.changeState(new MeleeEnemyAttack(), this); }
+            }
+            
+            if (myOwner.agent.desiredVelocity.magnitude < 0.5f) { myOwner.changeState(new WizardEnemyAttack()); }
+        }
+        else {
+            Vector3 targetDir = myOwner.attackTarget.position - myOwner.transform.position;
+            targetDir.y = 0;
+            Quaternion forward = Quaternion.LookRotation(targetDir);
+            myOwner.transform.rotation = Quaternion.Lerp(myOwner.transform.rotation, forward, 0.8f);
+            
+            myOwner.agent.stoppingDistance = 5f;
+            myOwner.agent.SetDestination(myOwner.crushTarget.position);
+        }
+    }
+
+    public override void Exit()
+    {
+        myOwner.agent.updateRotation = true;
+    }
+
+    void FindCover()
+    {
+        myOwner.agent.ResetPath();
+        NavMeshHit hit;
+        if (NavMesh.FindClosestEdge(myOwner.transform.position, out hit, myOwner.agent.areaMask))
+        {
+            hasCoverPosition = true;
+            myOwner.agent.SetDestination(hit.position);
+        }
+    }
+
+    NavMeshHit[] SplitNMerge(NavMeshHit[] array)
+    {
+        if (array.Length < 2) { return array; } // if the resulting array is length 1
+        int middle = array.Length / 2; // split the array down the middle
+
+        // recursively handle each array
+
+        NavMeshHit[] leftArray = new NavMeshHit[middle];
+        CopyArray(array, leftArray, 0, middle);
+        leftArray = SplitNMerge(leftArray);
+
+        NavMeshHit[] rightArray = new NavMeshHit[array.Length - middle];
+        CopyArray(array, rightArray, middle, array.Length);
+        rightArray = SplitNMerge(rightArray);
+
+        // merge back the left and right array
+        NavMeshHit[] newArray = MergeBack(leftArray, rightArray);
+        return newArray;
+    }
+
+    NavMeshHit[] MergeBack(NavMeshHit[] a1, NavMeshHit[] a2)
+    {
+        int a = 0, b = 0;
+        int length = a1.Length + a2.Length;
+        NavMeshHit[] finishedArray = new NavMeshHit[length];
+        for (int i = 0; i < length; i++)
+        {
+            float distA = -1;
+            float distB = -1;
+
+            // only compare a1 and a2 if a and be are respectively in range
+            if (a < a1.Length) { distA = Vector3.Distance(a1[a].position, myOwner.attackTarget.position); }
+            if (b < a2.Length) { distB = Vector3.Distance(a2[b].position, myOwner.attackTarget.position); }
+
+            // if one of them is out of range
+            if (distB == -1) { finishedArray[i] = a1[a]; a++; }
+            else if (distA == -1) { finishedArray[i] = a2[b]; b++; }
+
+            // otherwise compare
+            else {
+                if (distA <= distB) { finishedArray[i] = a1[a]; a++; }
+                else { finishedArray[i] = a2[b]; b++; }
+            }
+        }
+        return finishedArray;
+    }
+
+    void CopyArray(NavMeshHit[] A, NavMeshHit[] B, int start, int end)
+    {
+        int idx = start;
+        for (int i = 0; i < B.Length; i++)
+        {
+            B[i] = A[idx];
+            idx++;
+        }
+    }
 }

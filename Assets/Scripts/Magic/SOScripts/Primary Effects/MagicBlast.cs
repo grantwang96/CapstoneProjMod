@@ -22,7 +22,7 @@ public class MagicBlast : SpellPrimary { // Standard damaging magic attack
 
         Damageable collDam = coll.collider.GetComponent<Damageable>();
         if (collDam) {
-            Vector3 knockBack = (proj.transform.position - coll.transform.position).normalized;
+            Vector3 knockBack = (coll.transform.position - proj.transform.position).normalized;
             knockBack.y = upwardKnockup;
             knockBack = knockBack.normalized;
             collDam.TakeDamage(proj.originator, proj.power, knockBack, knockBackForce);
@@ -32,6 +32,8 @@ public class MagicBlast : SpellPrimary { // Standard damaging magic attack
             proj.Die();
             return;
         }
+        Rigidbody rbody = coll.collider.attachedRigidbody;
+        if(rbody != null) { rbody.AddExplosionForce(knockBackForce, proj.transform.position, 1f); }
         if (proj.bounceCount <= 0) {
             proj.Die();
         }

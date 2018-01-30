@@ -100,7 +100,7 @@ public class PlayerMovementV2 : Movement {
 
     public override void knockBack(Vector3 dir, float force)
     {
-        if(movementTakeover != null) { StopCoroutine(movementTakeover); hamper--; }
+        if(movementTakeover != null) { StopCoroutine(movementTakeover); }
         Vector3 knock = dir * force;
         movementTakeover = StartCoroutine(knockingBack(knock));
     }
@@ -108,27 +108,16 @@ public class PlayerMovementV2 : Movement {
     IEnumerator knockingBack(Vector3 force)
     {
         Debug.Log("Oof");
-        hamper++;
-        yMove = force.y;
-        Move(force * Time.deltaTime);
-        falling = true;
-        Vector3 flatForce = force;
-        flatForce.y = 0;
-        while (!charCon.isGrounded)
-        {
-            Move(flatForce * Time.deltaTime);
+        Vector3 knock = force;
+        Vector3 start = knock;
+        float time = 0f;
+
+        while (knock != Vector3.zero) {
+            knock = Vector3.Lerp(start, Vector3.zero, 2f * time);
+            time += Time.deltaTime;
+            Move(knock);
             yield return new WaitForEndOfFrame();
         }
-        Vector3 start = flatForce;
-        float prog = 0f;
-        while (flatForce != Vector3.zero)
-        {
-            Move(flatForce * Time.deltaTime);
-            prog += Time.deltaTime;
-            flatForce = Vector3.Lerp(start, Vector3.zero, prog * linearDrag);
-            yield return new WaitForEndOfFrame();
-        }
-        hamper--;
         movementTakeover = null;
     }
 

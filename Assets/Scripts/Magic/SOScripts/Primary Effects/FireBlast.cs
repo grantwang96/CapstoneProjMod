@@ -32,7 +32,9 @@ public class FireBlast : SpellPrimary {
             return;
         }
 
-        base.OnHit(proj, coll);
+        if(proj.secondaryEffect != null) {
+            base.OnHit(proj, coll);
+        }
 
         if (proj.bounceCount <= 0) {
             if (proj.mainShot) {
@@ -110,7 +112,7 @@ public class FireBlast : SpellPrimary {
             foreach(Collider coll in colls) {
                 Damageable dam = coll.GetComponent<Damageable>();
                 if (dam) {
-                    Vector3 knockBack = proj.transform.forward;
+                    Vector3 knockBack = (coll.transform.position - proj.transform.position).normalized;
                     knockBack.y = upwardKnockup;
                     knockBack = knockBack.normalized;
                     dam.TakeDamage(proj.originator, proj.power, knockBack, knockBackForce);

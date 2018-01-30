@@ -60,6 +60,7 @@ public abstract class Damageable : MonoBehaviour
         health -= hpLost;
         if(health <= 0) { dead = true; } // if this damage kills you
 
+        Debug.Log("knock back: " + dir * force);
         knockBack(dir, force);
 
         // if this damage kills you
@@ -395,12 +396,12 @@ public abstract class NPCState
         previousState = prevState;
     }
 
-    public virtual void Enter(Movement owner, NPCState prevState, float remainingDuration) // if you're "resuming" a previous state
+    public virtual void Enter(Movement owner, NPCState prevState, float newDuration) // if you're "resuming" a previous state
     {
         myOwner = owner;
         anim = myOwner.anim;
         previousState = prevState;
-        prevStateDuration = remainingDuration;
+        duration = newDuration;
     }
 
     public virtual void Execute()

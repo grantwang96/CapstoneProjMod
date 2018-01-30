@@ -19,22 +19,19 @@ public class MeleeEnemyDamageable : Damageable {
 
     IEnumerator knockingBack(Vector3 dir, float force)
     {
-        Vector3 originTarget = myMovement.agent.destination; // hold onto this location
-        myMovement.agent.ResetPath();
         myMovement.agent.isStopped = true;
-        myMovement.agent.updatePosition = false;
-        myMovement.agent.updateRotation = false;
 
-        rbody.AddForce(dir * force, ForceMode.Impulse);
-        yield return new WaitForSeconds(1f);
-        rbody.velocity = Vector3.zero;
+        Vector3 knock = dir * force;
+        Vector3 start = knock;
+        float time = 0f;
 
+        while (knock != Vector3.zero) {
+            knock = Vector3.Lerp(start, Vector3.zero, rbody.drag * time);
+            time += Time.deltaTime;
+            myMovement.Move(knock * Time.deltaTime);
+            yield return new WaitForEndOfFrame();
+        }
         myMovement.agent.isStopped = false;
-        myMovement.agent.SetDestination(originTarget);
-        myMovement.agent.nextPosition = transform.position;
-        myMovement.agent.updatePosition = true;
-        myMovement.agent.updateRotation = true;
-
         knockBackRoutine = null;
     }
 

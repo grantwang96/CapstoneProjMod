@@ -25,6 +25,21 @@ public class PillarOfDoom : MonoBehaviour {
         radius = partSys.shape.radius;
         var main = partSys.main;
         partSpeed = main.startSpeed.constant;
+
+        RaycastHit[] rayHits = Physics.SphereCastAll(transform.position, radius * 1.5f, Vector3.up, 0f);
+        foreach (RaycastHit hit in rayHits) {
+            Damageable dam = hit.collider.GetComponent<Damageable>();
+            if (dam != null) {
+                Vector3 dir = (hit.collider.transform.position - transform.position).normalized;
+                dam.TakeDamage(myCaster, damage * 2, dir, force);
+                Debug.Log("Hit " + hit.collider.name);
+            }
+            else {
+                Rigidbody rbody = hit.collider.attachedRigidbody;
+                if (rbody != null) { rbody.AddExplosionForce(force, transform.position, radius); }
+            }
+        }
+
         StartCoroutine(burn());
         StartCoroutine(playerHead.shakeCamera(shakeForce));
 	}
@@ -41,6 +56,10 @@ public class PillarOfDoom : MonoBehaviour {
                     Vector3 dir = (hit.collider.transform.position - transform.position).normalized;
                     dam.TakeDamage(myCaster, damage, dir, force);
                     Debug.Log("Hit " + hit.collider.name);
+                }
+                else {
+                    Rigidbody rbody = hit.collider.attachedRigidbody;
+                    if(rbody != null) { rbody.AddExplosionForce(force, transform.position, radius); }
                 }
             }
             yield return new WaitForEndOfFrame();
