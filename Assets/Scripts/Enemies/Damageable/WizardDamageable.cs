@@ -19,19 +19,21 @@ public class WizardDamageable : Damageable {
     IEnumerator knockingBack(Vector3 dir, float force)
     {
         myMovement.agent.isStopped = true;
+        myMovement.agent.updatePosition = false;
+        myMovement.agent.updateRotation = false;
 
-        Vector3 knock = dir * force;
-        Vector3 start = knock;
-        float time = 0f;
+        float groundTime = 0f;
+        rbody.AddForce(Vector3.up * force, ForceMode.Impulse);
+        Debug.Log("Force is: " + force);
 
-        while (knock != Vector3.zero)
-        {
-            knock = Vector3.Lerp(start, Vector3.zero, rbody.drag * time);
-            time += Time.deltaTime;
-            myMovement.Move(knock * Time.deltaTime);
+        while (groundTime < .3f) {
+            if (rbody.velocity.y == 0) { groundTime += Time.deltaTime; }
             yield return new WaitForEndOfFrame();
         }
+        myMovement.agent.Warp(transform.position);
         myMovement.agent.isStopped = false;
+        myMovement.agent.updatePosition = true;
+        myMovement.agent.updateRotation = true;
         knockBackRoutine = null;
     }
 

@@ -25,5 +25,5 @@ MonoBehaviour:
     type: 2}
   castEffect: {fileID: 198545228210204070, guid: 828a4427cc7df2942a99b970db3979fe,
     type: 2}
-  knockBackForce: 10
+  knockBackForce: 15
   upwardKnockup: 0.3

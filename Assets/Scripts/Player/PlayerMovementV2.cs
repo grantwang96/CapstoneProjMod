@@ -38,7 +38,7 @@ public class PlayerMovementV2 : Movement {
         if (falling) { yMove += Time.deltaTime * Physics.gravity.y; }
         // Debug.Log(charCon.isGrounded);
         Vector3 move = moveDir * slownessSeverity * drunkMod; // Get the total movement
-        Move(move);
+        Move(move * Time.deltaTime);
         if(charCon != null && charCon.enabled) { charCon.Move(Vector3.up * yMove * Time.deltaTime); }
     }
 
@@ -66,11 +66,11 @@ public class PlayerMovementV2 : Movement {
         if (charCon == null || !charCon.enabled) { return; }
         if (charCon.isGrounded) {
             currVel = Vector3.Lerp(currVel, movement, friction);
-            charCon.Move(currVel * Time.deltaTime);
+            charCon.Move(currVel);
         }
         else {
             currVel = Vector3.Lerp(currVel, movement, friction * 0.1f);
-            charCon.Move(currVel * Time.deltaTime);
+            charCon.Move(currVel);
         }
     }
 
@@ -115,7 +115,7 @@ public class PlayerMovementV2 : Movement {
         while (knock != Vector3.zero) {
             knock = Vector3.Lerp(start, Vector3.zero, 2f * time);
             time += Time.deltaTime;
-            Move(knock);
+            Move(knock * Time.deltaTime);
             yield return new WaitForEndOfFrame();
         }
         movementTakeover = null;

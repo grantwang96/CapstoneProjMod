@@ -15,7 +15,10 @@ public class GameManager : MonoBehaviour { // will handle game events such as it
 
     public Text enemyCounter;
 
-    public bool isSpellSpawning;
+    public GameObject messagePrefab;
+
+    [SerializeField] private bool isSpellSpawning;
+    [SerializeField] private bool combatTesting;
 
 	// Use this for initialization
 	void Start () {
@@ -25,8 +28,15 @@ public class GameManager : MonoBehaviour { // will handle game events such as it
 	
 	// Update is called once per frame
 	void Update () {
-        if(enemiesOnScreen.Count > 0) {
-            for (int i = 0; i < enemiesOnScreen.Count; i++) {
+        if(combatTesting) { CombatTesting(); }
+	}
+
+    void CombatTesting()
+    {
+        if (enemiesOnScreen.Count > 0)
+        {
+            for (int i = 0; i < enemiesOnScreen.Count; i++)
+            {
                 if (enemiesOnScreen[i] == null) { enemiesOnScreen.Remove(enemiesOnScreen[i]); }
             }
         }
@@ -34,7 +44,7 @@ public class GameManager : MonoBehaviour { // will handle game events such as it
             InitiateWinState();
         }
         enemyCounter.text = "Enemies Remaining: " + enemiesOnScreen.Count;
-	}
+    }
 
     IEnumerator spellSpawning()
     {

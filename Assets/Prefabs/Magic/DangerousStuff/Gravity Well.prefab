@@ -57,7 +57,7 @@ MonoBehaviour:
   force: 1
   lifeTime: 10
   range: 0
-  rangeIncreaseFactor: 1
+  rangeIncreaseFactor: 1.5
   maxRange: 6
   speed: 360
   initialEmissionRate: 20

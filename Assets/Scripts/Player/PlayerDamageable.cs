@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerDamageable : Damageable {
+
+    public static PlayerDamageable Instance;
 
     Coroutine flight;
     Coroutine drunkness;
@@ -26,6 +29,7 @@ public class PlayerDamageable : Damageable {
 	// Use this for initialization
 	public override void Start () {
         base.Start();
+        Instance = this;
         // playerCanvas = Instantiate(playerCanvasPrefab);
         // healthBar = playerCanvas.Find("HealthBar").GetComponent<Image>();
 	}
@@ -41,6 +45,7 @@ public class PlayerDamageable : Damageable {
         if (hurt) { return; }
         // Visual hurt effects
         base.TakeDamage(attacker, hpLost, dir, force);
+        if(health <= 0) { Die(); return; }
         PlayerMagic.instance.invokeChangeFollowers(attacker.GetComponent<Damageable>());
         Debug.Log("Player HP: " + health);
         StartCoroutine(hurtFrames());
@@ -55,7 +60,7 @@ public class PlayerDamageable : Damageable {
 
     public override void Die()
     {
-        GameManager.Instance.InitiateLoseState();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     /*public override void Fly(float force, float duration)

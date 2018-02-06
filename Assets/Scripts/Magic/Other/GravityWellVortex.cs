@@ -45,6 +45,7 @@ public class GravityWellVortex : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        
         Vector3 before = transform.position + transform.forward * range;
         transform.Rotate(0, speed * Time.deltaTime, 0);
         Vector3 after = transform.position + transform.forward * range;
@@ -52,8 +53,7 @@ public class GravityWellVortex : MonoBehaviour {
         if (Time.time - startTime >= lifeTime) {
             Die();
         }
-        if (range < maxRange)
-        {
+        if (range < maxRange) {
             range += Time.deltaTime * rangeIncreaseFactor;
             if(range > maxRange) {
                 range = maxRange;
@@ -87,24 +87,16 @@ public class GravityWellVortex : MonoBehaviour {
                 }
             }
         }
-
-        /*
-        if(trapped.Count > 0)
-        {
-            foreach(Transform loser in trapped)
-            {
-                if(loser == null) { continue; }
-                Damageable dam = loser.GetComponent<Damageable>();
-                if (dam) {
-                    dam.vortexGrab(transform, force);
-                }
-                else if(loser.GetComponent<Rigidbody>() != null) {
-                    loser.GetComponent<Rigidbody>().AddForce((transform.position - loser.position).normalized * force);
-                }
-            }
-        }
-        */
 	}
+
+    void FixedUpdate()
+    {
+        Vector3 before = transform.position + transform.forward * range;
+        transform.Rotate(0, speed * Time.deltaTime, 0);
+        Vector3 after = transform.position + transform.forward * range;
+        pointShift = transform.InverseTransformDirection(after - before);
+        
+    }
 
     class trappedIdiot
     {
@@ -128,6 +120,7 @@ public class GravityWellVortex : MonoBehaviour {
             // trapped.Add(coll.transform);
         }
     }
+
     void OnTriggerExit(Collider coll)
     {
         for(int i = 0; i < idiots.Count; i++)
@@ -141,6 +134,15 @@ public class GravityWellVortex : MonoBehaviour {
             }
         }
     }
+
+    void OnTriggerStay(Collider coll)
+    {
+        Damageable colldam = coll.GetComponent<Damageable>();
+        if(colldam != null) {
+            
+        }
+    }
+
     void Die()
     {
         /*

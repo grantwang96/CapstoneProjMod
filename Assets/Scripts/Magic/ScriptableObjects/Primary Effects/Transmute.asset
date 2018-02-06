@@ -13,7 +13,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   force: 40
   power: 1
-  duration: 15
+  duration: 6
   powerLevelModifier: 1
   powerLevel: 1
   baseColor: {r: 1, g: 0, b: 0, a: 0.7058824}

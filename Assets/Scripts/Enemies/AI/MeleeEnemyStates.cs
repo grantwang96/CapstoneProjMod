@@ -64,17 +64,13 @@ public class MeleeEnemyWander : NPCState
     public override void Execute()
     {
         if(myOwner.checkView()) { myOwner.changeState(new MeleeEnemyAggro()); }
+        if(myOwner.obstruction()) { myOwner.changeState(new MeleeEnemyIdle()); }
 
         float distToDest = Vector3.Distance(myOwner.transform.position, myOwner.agent.pathEndPosition);
         if(distToDest < 0.2f + myOwner.agent.stoppingDistance) {
             Debug.Log("Reached destination!");
             myOwner.changeState(new MeleeEnemyIdle(), Random.Range(4f, 6f));
         }
-        /*
-        if(myOwner.hamper <= 0) {
-            myOwner.rbody.MovePosition(myOwner.transform.position + myOwner.agent.desiredVelocity * Time.deltaTime);
-        }
-        */
         if(myOwner.friction != 1f) { myOwner.rbody.AddForce(myOwner.agent.desiredVelocity * (1f - myOwner.friction)); }
     }
 
@@ -124,6 +120,7 @@ public class MeleeEnemyAggro : NPCState
         }
 
         myOwner.agent.SetDestination(myOwner.attackTarget.position);
+        if (myOwner.obstruction()) { myOwner.changeState(new MeleeEnemyIdle()); }
 
         // Enter attack state if in range to attack
         float dist = Vector3.Distance(myOwner.transform.position, attackTarget.position);
@@ -196,9 +193,10 @@ public class MeleeEnemySeduced : NPCState
         if(myOwner.crush == null || myOwner.crushTarget == null) { stateChange(); return; }
 
         // if you don't have an attack target, go follow crush around
-        if(myOwner.attackTarget == null) {
+        if (myOwner.attackTarget == null) {
             myOwner.agent.stoppingDistance = 3f;
             myOwner.agent.SetDestination(myOwner.crushTarget.position);
+            if (myOwner.obstruction()) { teleportToLover(); }
         }
         else { // otherwise, go be mean
             myOwner.agent.stoppingDistance = myOwner.blueprint.attackRange;
@@ -225,5 +223,13 @@ public class MeleeEnemySeduced : NPCState
     {
         if (previousState != null) { myOwner.changeState(previousState); }
         else { myOwner.changeState(new MeleeEnemyIdle()); }
+    }
+
+    private void teleportToLover()
+    {
+        if(myOwner.crushTarget == null) { myOwner.changeState(new MeleeEnemyIdle()); return; }
+        Vector3 randomLocation = Random.insideUnitSphere * 4f + myOwner.crushTarget.position;
+        randomLocation.y = myOwner.crushTarget.position.y;
+        myOwner.agent.Warp(randomLocation);
     }
 }

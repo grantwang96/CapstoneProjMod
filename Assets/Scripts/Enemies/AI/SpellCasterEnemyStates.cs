@@ -47,6 +47,7 @@ public class WizardEnemyWander : NPCState
     public override void Execute()
     {
         if (myOwner.checkView()) { myOwner.changeState(new WizardEnemyAttack()); }
+        if (myOwner.obstruction()) { myOwner.changeState(new WizardEnemyIdle()); }
 
         float distToDest = Vector3.Distance(myOwner.transform.position, myOwner.agent.pathEndPosition);
         if (distToDest < 0.2f + myOwner.agent.stoppingDistance)
@@ -54,11 +55,6 @@ public class WizardEnemyWander : NPCState
             Debug.Log("Reached destination!");
             myOwner.changeState(new WizardEnemyIdle(), Random.Range(4f, 6f));
         }
-        /*
-        if(myOwner.hamper <= 0) {
-            myOwner.rbody.MovePosition(myOwner.transform.position + myOwner.agent.desiredVelocity * Time.deltaTime);
-        }
-        */
         if (myOwner.friction != 1f) { myOwner.rbody.AddForce(myOwner.agent.desiredVelocity * (1f - myOwner.friction)); }
     }
 
@@ -123,7 +119,8 @@ public class WizardEnemyAggro : NPCState
             if(!hasCoverPosition) { FindCover(); }
         }
 
-        if(myOwner.agent.desiredVelocity.magnitude < 0.5f) { myOwner.changeState(new WizardEnemyAttack()); }
+        if (myOwner.obstruction()) { myOwner.changeState(new WizardEnemyIdle()); }
+        if (myOwner.agent.desiredVelocity.magnitude < 0.5f) { myOwner.changeState(new WizardEnemyAttack()); }
         targetWasInView = targetInView;
     }
 
@@ -278,7 +275,7 @@ public class WizardEnemySeduced : NPCState
             else {
                 if (!hasCoverPosition) { FindCover(); }
                 float distance = Vector3.Distance(myOwner.transform.position, myOwner.agent.destination);
-                if (distance < myOwner.blueprint.attackRange) { myOwner.changeState(new MeleeEnemyAttack(), this); }
+                if (distance < myOwner.blueprint.attackRange) { myOwner.changeState(new WizardEnemyAttack(), this); }
             }
             
             if (myOwner.agent.desiredVelocity.magnitude < 0.5f) { myOwner.changeState(new WizardEnemyAttack()); }
@@ -292,6 +289,7 @@ public class WizardEnemySeduced : NPCState
             myOwner.agent.stoppingDistance = 5f;
             myOwner.agent.SetDestination(myOwner.crushTarget.position);
         }
+        if (myOwner.obstruction()) { myOwner.changeState(new WizardEnemyIdle()); }
     }
 
     public override void Exit()
@@ -308,6 +306,14 @@ public class WizardEnemySeduced : NPCState
             hasCoverPosition = true;
             myOwner.agent.SetDestination(hit.position);
         }
+    }
+
+    private void teleportToLover()
+    {
+        if (myOwner.crushTarget == null) { myOwner.changeState(new WizardEnemyIdle()); return; }
+        Vector3 randomLocation = Random.insideUnitSphere * 4f + myOwner.crushTarget.position;
+        randomLocation.y = myOwner.crushTarget.position.y;
+        myOwner.agent.Warp(randomLocation);
     }
 
     NavMeshHit[] SplitNMerge(NavMeshHit[] array)

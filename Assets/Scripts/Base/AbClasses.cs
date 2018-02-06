@@ -59,8 +59,7 @@ public abstract class Damageable : MonoBehaviour
         Debug.Log(transform.name + " takes " + hpLost + " points of damage!");
         health -= hpLost;
         if(health <= 0) { dead = true; } // if this damage kills you
-
-        Debug.Log("knock back: " + dir * force);
+        
         knockBack(dir, force);
 
         // if this damage kills you
@@ -188,6 +187,7 @@ public abstract class Movement : MonoBehaviour
 
     [SerializeField] int numRaycasts;
     [SerializeField] float raySpread;
+    [SerializeField] float obstacleCheckRange;
     public LayerMask scanLayer;
     public LayerMask obstacleLayer;
     public LayerMask pathFindingLayers;
@@ -223,7 +223,20 @@ public abstract class Movement : MonoBehaviour
 
     public virtual void processMovement()
     {
-        if(currState != null && hamper <= 0) { currState.Execute(); }
+        if(currState != null && hamper <= 0) {
+            currState.Execute();
+        }
+    }
+
+    public bool obstruction() {
+        RaycastHit[] rayHits = Physics.RaycastAll(
+            transform.position, agent.desiredVelocity, obstacleCheckRange, obstacleLayer, QueryTriggerInteraction.Ignore);
+        foreach(RaycastHit rayhit in rayHits) {
+            if(rayhit.collider.tag == "Wall" || rayhit.collider.tag == "Ground") {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Vector3 getRandomLocation(Vector3 origin, float range)

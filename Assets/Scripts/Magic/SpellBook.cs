@@ -91,6 +91,8 @@ public class SpellBook : MonoBehaviour, Interactable {
         spellCaster.pickUpSpell(this);
     }
 
+    public void Interact() { Debug.Log("Can't be used by you!"); }
+
     public IEnumerator Drop(Vector3 newLoc)
     {
         _dead = true;

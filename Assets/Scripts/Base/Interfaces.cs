@@ -21,4 +21,5 @@ public interface SpellCaster
 public interface Interactable
 {
     void Interact(SpellCaster spellCaster);
+    void Interact();
 }

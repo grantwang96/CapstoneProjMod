@@ -7,10 +7,15 @@ public class FistScript : MonoBehaviour {
     public int damage;
     public float force;
     public Transform myBody;
+    public Movement myMovement;
 
 	// Use this for initialization
 	void Start () {
-
+        myMovement = transform.root.GetComponent<Movement>();
+        if(myMovement != null) {
+            EnemyData blueprint = myMovement.blueprint;
+            damage = blueprint.damage;
+        }
 	}
 	
 	// Update is called once per frame
